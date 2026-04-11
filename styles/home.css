@@ -1,0 +1,39 @@
+/* ========================
+   home.css
+   Estilos da tela inicial
+   ======================== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.card .btn {
+    width: 100%;
+    margin-top: 1rem;
+}

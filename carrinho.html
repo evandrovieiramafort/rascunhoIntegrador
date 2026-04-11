@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cefet Shop - Carrinho</title>
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/carrinho.css">
+    <script src="src/main.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1><a href="index.html">Cefet Shop</a></h1>
+        <a href="carrinho.html" class="cart-icon">
+            🛒 Carrinho <span class="badge">1</span>
+        </a>
+    </header>
+
+    <main>
+        <h2>Seu Carrinho de Compras</h2>
+        
+        <div id="itens-carrinho">
+            <div class="cart-item">
+                <div>
+                    <strong>Caneca Sistemas de Informação</strong><br>
+                    C$ 40.00
+                </div>
+                <div>
+                    Qtd: <input type="number" value="1" min="1" max="8" style="width: 50px; padding: 0.2rem;">
+                </div>
+                <div>
+                    <strong>Subtotal: C$ 40.00</strong>
+                </div>
+                <a href="#" class="btn btn-danger" onclick="removerDoCarrinho(event)">Remover</a>
+            </div>
+        </div>
+
+        <div class="cart-total">
+            Total: C$ 40.00
+        </div>
+
+        <div style="text-align: right; margin-top: 1rem;">
+            <a href="#" class="btn btn-checkout" onclick="tentarFinalizarCompra(event)">Finalizar Compra</a>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <a href="index.html" class="btn btn-back">← Continuar Comprando</a>
+        </div>
+    </main>
+</body>
+</html>
