@@ -1,5 +1,6 @@
 DROP DATABASE IF EXISTS `cefetshop_bd_prd`;
 CREATE DATABASE IF NOT EXISTS cefetshop_bd_prd DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
 USE cefetshop_bd_prd;
 
 CREATE TABLE categoria_produto (
