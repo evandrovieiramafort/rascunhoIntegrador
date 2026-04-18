@@ -12,7 +12,7 @@ class RepositorioItemEmBDR implements RepositorioItem
 
     public function __construct(private ?PDO $pdo) {}
 
-    public function buscarMaisVendidos(int $pagina = 1): array
+    public function obterTodosOsItens(int $pagina = 1): array
     {
         try {
             $limite = 6;

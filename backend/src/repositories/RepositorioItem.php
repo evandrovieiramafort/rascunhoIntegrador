@@ -8,7 +8,7 @@ interface RepositorioItem {
     /**
      * @return Item[]
      */
-    public function buscarMaisVendidos(int $pagina): array;
+    public function obterTodosOsItens(int $pagina): array;
     public function contarTotalItens(): int;
     public function ObterPorId(int $id): ?Item;
 }

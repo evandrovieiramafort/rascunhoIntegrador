@@ -2,29 +2,30 @@
 
 namespace App\Services;
 
-use App\Models\Item;
 use App\Repositories\RepositorioItem;
-use App\Repositories\RepositorioItemEmBDR;
+use App\Mappers\MapperItem;
+use App\Dto\PaginacaoDTO;
+use App\Exceptions\DominioException;
 
 class ItemService {
-
     public function __construct(
-        private RepositorioItemEmBDR $repositorio
-    ) {
-    }
+        private readonly RepositorioItem $repositorio
+    ) {}
 
-    public function buscarMaisVendidos(int $pagina = 1): array
-    {
-        return $this->repositorio->buscarMaisVendidos($pagina);
-    }
+    public function ObterTodosOsItens(int $pagina): PaginacaoDTO {
+        $itensModel = $this->repositorio->obterTodosOsItens($pagina);
+        
+        if($itensModel == 0 ){
+            throw new DominioException("A busca retornou zero resultados!");
+        }
+        
+        $totalItens = $this->repositorio->contarTotalItens();
+        $totalPaginas = (int) ceil($totalItens / 6);
 
-    public function contarTotalItens(): int
-    {
-        return $this->repositorio->contarTotalItens();
-    }
-
-    public function obterPorId(int $id): ?Item
-    {
-        return $this->repositorio->obterPorId($id);
+        return new PaginacaoDTO(
+            MapperItem::paraListaDTO($itensModel),
+            $pagina,
+            $totalPaginas
+        );
     }
 }

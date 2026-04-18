@@ -10,7 +10,7 @@ class Item {
         public string $descricao,
         public string $descricaoDetalhada,
         public string $periodoLancamento,
-        public float $precoVenda,
+        public string $precoVenda,
         public float $percentualDesconto,
         public int $quantidadeEstoque
     ) {}
@@ -39,7 +39,7 @@ class Item {
         return $this->periodoLancamento;
     }
 
-    public function getPrecoVenda(): float {
+    public function getPrecoVenda(): string {
         return $this->precoVenda;
     }
 
