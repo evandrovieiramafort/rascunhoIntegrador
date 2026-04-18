@@ -7,12 +7,12 @@ use App\Exceptions\RepositorioException;
 use PDO;
 use PDOException;
 
-class ItemRepositorioEmBDR implements RepositorioItem
+class RepositorioItemEmBDR implements RepositorioItem
 {
 
     public function __construct(private ?PDO $pdo) {}
 
-    public function buscarMaisVendidos(int $pagina): array
+    public function buscarMaisVendidos(int $pagina = 1): array
     {
         try {
             $limite = 6;
