@@ -48,7 +48,6 @@ class Item {
     }
 
     public function getQuantidadeEstoque(): int {
-        echo "teste";
         return $this->quantidadeEstoque;
     }
 }
