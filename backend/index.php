@@ -1,4 +1,9 @@
 <?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'vendor/autoload.php';
 require_once __DIR__ . '/src/Infra/ConexaoDB.php';
 
@@ -17,10 +22,16 @@ try {
 }
 
 $app = new Router();
-$app->use(cors());
+$app->use(cors([
+    'origin' => 'http://localhost:5173', 
+    'credentials' => true,
+    'allowedHeaders' => ['Content-Type', 'Accept', 'Origin', 'Authorization'],
+    'methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+]));
 
 $rotas = [
     __DIR__ . '/src/routes/ItemRouter.php',
+    __DIR__ . '/src/routes/CarrinhoRouter.php',
 ];
 
 foreach ($rotas as $r) {

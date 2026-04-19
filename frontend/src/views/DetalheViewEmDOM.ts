@@ -1,9 +1,11 @@
 import { ItemService } from "../services/ItemService";
+import { CarrinhoService } from "../services/CarrinhoService";
 import type { ItemDTO } from "../domain/ItemDTO";
 import type { DetalheItemView } from "./interfaces/DetalheView";
 
 export class DetalheItemViewEmDOM implements DetalheItemView {
     private servicoItem: ItemService;
+    private servicoCarrinho: CarrinhoService;
     private formatadorCefetins = new Intl.NumberFormat('pt-BR', { 
         minimumFractionDigits: 2, 
         maximumFractionDigits: 2 
@@ -11,8 +13,8 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
 
     constructor() {
         this.servicoItem = new ItemService();
+        this.servicoCarrinho = new CarrinhoService();
     }
-
 
     async iniciar(idItem: number): Promise<void> {
         this.exibirCarregamento();
@@ -28,7 +30,6 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
             this.exibirErro("Falha ao carregar os detalhes do produto.");
         }
     }
-
 
     public exibirDetalhes(item: ItemDTO): void {
         const { divDetalhes } = this.localizarElementosDaPagina();
@@ -162,7 +163,6 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
         return divFinanceiro;
     }
 
-
     private criarSeletorQuantidade(estoque: number): HTMLElement {
         const divGroup = document.createElement('div');
         divGroup.className = 'mb-4';
@@ -194,9 +194,31 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
         const btnAdicionar = document.createElement('button');
         btnAdicionar.className = 'btn btn-primary btn-lg';
         btnAdicionar.textContent = 'Adicionar ao Carrinho';
-        btnAdicionar.onclick = () => {
-            const qtd = (document.querySelector('#quantidade-selecionada') as HTMLSelectElement).value;
-            console.log(`Item ${item.id} (${qtd} unidades) adicionado ao carrinho`);
+        
+        btnAdicionar.onclick = async () => {
+            const selectQtd = document.querySelector('#quantidade-selecionada') as HTMLSelectElement;
+            const qtd = parseInt(selectQtd.value, 10);
+            
+            btnAdicionar.disabled = true;
+            btnAdicionar.textContent = 'Adicionando...';
+
+            try {
+                await this.servicoCarrinho.adicionarItem(item.id, qtd);
+                await this.servicoCarrinho.atualizarBadgeNav();
+                
+                btnAdicionar.classList.replace('btn-primary', 'btn-success');
+                btnAdicionar.textContent = 'Item Adicionado!';
+                
+                setTimeout(() => {
+                    btnAdicionar.classList.replace('btn-success', 'btn-primary');
+                    btnAdicionar.textContent = 'Adicionar ao Carrinho';
+                    btnAdicionar.disabled = false;
+                }, 2000);
+            } catch (error) {
+                alert("Erro ao adicionar ao carrinho.");
+                btnAdicionar.disabled = false;
+                btnAdicionar.textContent = 'Adicionar ao Carrinho';
+            }
         };
 
         const btnIrCarrinho = document.createElement('button');
@@ -204,7 +226,7 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
         btnIrCarrinho.textContent = 'Ir para o Carrinho';
         btnIrCarrinho.onclick = () => {
             window.history.pushState({}, '', '/carrinho');
-            // Disparar evento de navegação global se necessário
+            window.dispatchEvent(new PopStateEvent('popstate'));
         };
 
         divBotoes.append(btnAdicionar, btnIrCarrinho);

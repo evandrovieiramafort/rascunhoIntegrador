@@ -1,17 +1,20 @@
 import { carregarPagina } from "./infra/spa";
 import { ErroViewEmDOM } from "./views/ErroViewEmDOM";
+import { CarrinhoService } from "./services/CarrinhoService";
 
 const appContainer = document.querySelector('#app') as HTMLElement;
+const servicoCarrinho = new CarrinhoService();
 
 async function rotearApp() {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
 
-    // Função auxiliar para navegar via SPA
     const navegarParaHome = () => {
         window.history.pushState({}, '', '/');
         rotearApp();
     };
+
+    await servicoCarrinho.atualizarBadgeNav();
 
     if (path === '/' || path === '/index.html') {
         await carregarPagina(appContainer, '/pages/home.html');
@@ -29,8 +32,14 @@ async function rotearApp() {
         const idItem = parseInt(params.get('id') || '0', 10);
         idItem > 0 ? await visao.iniciar(idItem) : navegarParaHome();
 
+    } else if (path === '/carrinho') {
+        await carregarPagina(appContainer, '/pages/carrinho.html');
+        const { CarrinhoViewEmDOM } = await import('./views/CarrinhoViewEmDOM');
+        const visao = new CarrinhoViewEmDOM();
+        
+        await visao.iniciar();
+
     } else {
-        // Uso da ErroView via DOM em vez de innerHTML
         const visaoErro = new ErroViewEmDOM();
         visaoErro.exibirPaginaNaoEncontrada(appContainer, navegarParaHome);
     }
