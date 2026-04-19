@@ -3,15 +3,10 @@ export interface ItemDTO {
     foto: string;
     descricao: string;
     descricaoDetalhada: string;
+    periodoLancamento: string;
     precoVenda: number | string;
     percentualDesconto: number;
     precoFinal: number;
     quantidadeEstoque: number;
     estaEsgotado: boolean;
-}
-
-export interface PaginacaoDTO {
-    itens: ItemDTO[];
-    paginaAtual: number;
-    totalPaginas: number;
 }
