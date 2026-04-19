@@ -28,4 +28,22 @@ return function ($app, $pdo) {
             }
         }
     );
+
+    $app->get(
+        '/item/:id',
+        function (HttpRequest $req, HttpResponse $res) use ($pdo) {
+
+            $servico = new ItemService(new RepositorioItemEmBDR($pdo));
+            $id = (int) $req->param('id');
+
+            try {
+                $resultado = $servico->ObterPorId($id);
+                $res->status(200)->json($resultado);
+            } catch (RepositorioException $e) {
+                $res->status(500)->json(['mensagem' => $e->getMessage()]);
+            } catch (DominioException $e) {
+                $res->status(404)->json(['mensagem' => $e->getMessage()]);
+            }
+        }
+    );
 };

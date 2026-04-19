@@ -28,4 +28,14 @@ class ItemService {
             $totalPaginas
         );
     }
+
+    public function ObterPorId(int $id) {
+        $itemModel = $this->repositorio->obterPorId($id);
+        
+        if(!$itemModel){
+            throw new DominioException("Item não encontrado!");
+        }
+
+        return MapperItem::paraDTO($itemModel);
+    }
 }
