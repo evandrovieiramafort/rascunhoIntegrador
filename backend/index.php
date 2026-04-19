@@ -1,8 +1,8 @@
 <?php
 require_once 'vendor/autoload.php';
+require_once __DIR__ . '/src/Infra/ConexaoDB.php';
 
 use phputil\router\Router;
-
 use function App\Infra\conectarAoDB;
 use function phputil\cors\cors;
 
@@ -19,12 +19,8 @@ try {
 $app = new Router();
 $app->use(cors());
 
-$app->get('/', function ($req, $res) {
-    $res->redirect('/itens/1');
-});
-
 $rotas = [
-    __DIR__ . '/src/routes/item.php',
+    __DIR__ . '/src/routes/ItemRouter.php',
 ];
 
 foreach ($rotas as $r) {
