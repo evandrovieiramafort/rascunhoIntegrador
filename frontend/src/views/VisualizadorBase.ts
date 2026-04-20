@@ -28,6 +28,46 @@ export abstract class VisualizadorBase {
     return elemento;
   }
 
+  protected criarStepper(
+    valorInicial: number, 
+    maximo: number, 
+    aoMudar?: (novoValor: number) => void
+  ): HTMLElement {
+    const divGroup = criarHTML("div");
+    divGroup.className = "input-group input-group-sm mx-auto";
+    divGroup.style.width = "110px";
+
+    const btnMenos = this.criarElementoTexto("button", "-", "btn btn-outline-secondary");
+    const inputQtd = criarHTML("input");
+    inputQtd.type = "text";
+    inputQtd.className = "form-control text-center fw-bold bg-white";
+    inputQtd.value = valorInicial.toString();
+    inputQtd.readOnly = true;
+
+    const btnMais = this.criarElementoTexto("button", "+", "btn btn-outline-secondary");
+
+    btnMenos.onclick = () => {
+      const atual = parseInt(inputQtd.value);
+      if (atual > 1) {
+        const novo = atual - 1;
+        inputQtd.value = novo.toString();
+        if (aoMudar) aoMudar(novo);
+      }
+    };
+
+    btnMais.onclick = () => {
+      const atual = parseInt(inputQtd.value);
+      if (atual < maximo) {
+        const novo = atual + 1;
+        inputQtd.value = novo.toString();
+        if (aoMudar) aoMudar(novo);
+      }
+    };
+
+    divGroup.append(btnMenos, inputQtd, btnMais);
+    return divGroup;
+  }
+
   protected criarBadge(texto: string, cor: string, classesAdicionais: string = ""): HTMLElement {
     return this.criarElementoTexto("span", texto, `badge bg-${cor} ${classesAdicionais}`);
   }
@@ -44,11 +84,9 @@ export abstract class VisualizadorBase {
   protected criarSpinner(): HTMLElement {
     const divCentro = criarHTML("div");
     divCentro.className = "text-center my-5";
-
     const divSpinner = criarHTML("div");
     divSpinner.className = "spinner-border text-primary";
     divSpinner.setAttribute("role", "status");
-
     divSpinner.appendChild(this.criarElementoTexto("span", "Carregando...", "visually-hidden"));
     divCentro.appendChild(divSpinner);
     return divCentro;
@@ -63,17 +101,13 @@ export abstract class VisualizadorBase {
     modal.className = "modal fade show d-block";
     modal.style.backgroundColor = "rgba(0,0,0,0.5)";
     modal.setAttribute("role", "dialog");
-    
     const dialog = criarHTML("div");
     dialog.className = "modal-dialog modal-dialog-centered";
-    
     const content = criarHTML("div");
     content.className = "modal-content shadow";
-
     const header = criarHTML("div");
     header.className = "modal-header";
     header.appendChild(this.criarElementoTexto("h5", titulo, "modal-title"));
-
     const body = criarHTML("div");
     body.className = "modal-body text-center p-4";
     if (typeof corpo === "string") {
@@ -81,14 +115,11 @@ export abstract class VisualizadorBase {
     } else {
       body.appendChild(corpo);
     }
-
     const footer = criarHTML("div");
     footer.className = "modal-footer justify-content-center";
-    
     const btn = this.criarElementoTexto("button", textoBtn, `btn btn-${corBtn}`);
     btn.onclick = () => { acao(); modal.remove(); };
     footer.appendChild(btn);
-
     content.append(header, body, footer);
     dialog.appendChild(content);
     modal.appendChild(dialog);
@@ -97,28 +128,15 @@ export abstract class VisualizadorBase {
 
   public exibir404(container: HTMLElement): void {
     limparFilhos(container);
-
     const divCentro = criarHTML("div");
     divCentro.className = "text-center mt-5";
-
     const h1 = this.criarElementoTexto("h1", "404", "display-1 fw-bold");
-
     const pMensagem = this.criarElementoTexto("p", "Página não encontrada.", "fs-3");
     const spanOps = this.criarElementoTexto("span", "Ops! ", "text-danger");
     pMensagem.prepend(spanOps);
-
-    const pDescricao = this.criarElementoTexto(
-      "p", 
-      "O endereço que você procura não existe no sistema Cefet Shop.", 
-      "lead"
-    );
-
+    const pDescricao = this.criarElementoTexto("p", "O endereço que você procura não existe no sistema Cefet Shop.", "lead");
     const btnVoltar = this.criarElementoTexto("button", "Voltar para o início", "btn btn-primary");
-    btnVoltar.onclick = (e) => {
-      e.preventDefault();
-      this.navegarPara("/");
-    };
-
+    btnVoltar.onclick = (e) => { e.preventDefault(); this.navegarPara("/"); };
     divCentro.append(h1, pMensagem, pDescricao, btnVoltar);
     container.appendChild(divCentro);
   }

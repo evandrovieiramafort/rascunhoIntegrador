@@ -30,6 +30,10 @@ export class DetalheController {
             await this.servicoCarrinho.adicionarItem(itemId, quantidade);
             await this.servicoCarrinho.atualizarBadgeNav();
             this.visao.notificarSucessoAdicao();
+            
+            setTimeout(() => {
+                this.carregarDetalhes(itemId);
+            }, 2000);
         } catch (erro: any) {
             this.visao.notificarErroAdicao(erro.message || "Estoque insuficiente.");
         }

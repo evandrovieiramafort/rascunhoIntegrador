@@ -40,7 +40,14 @@ export class DetalheItemViewEmDOM extends VisualizadorBase implements DetalheIte
         );
 
         if (item.quantidadeEstoque > 0) {
-            colInfo.append(this.criarSeletorQuantidade(item.quantidadeEstoque), this.criarBotoesAcao(item));
+            const divStepper = criarHTML("div");
+            divStepper.appendChild(this.criarElementoTexto("label", "Quantidade:", "form-label fw-bold"));
+            
+            const stepper = this.criarStepper(1, item.quantidadeEstoque);
+            stepper.id = "stepper-detalhe";
+            divStepper.appendChild(stepper);
+            
+            colInfo.append(divStepper, this.criarBotoesAcao(item));
         }
 
         row.append(colImg, colInfo);
@@ -55,23 +62,7 @@ export class DetalheItemViewEmDOM extends VisualizadorBase implements DetalheIte
         const div = criarHTML('div');
         div.className = 'mb-4 p-3 bg-light rounded';
         div.append(this.criarPrecoArea(item.precoVenda, item.precoFinal, item.percentualDesconto));
-        div.append(this.criarElementoTexto("p", `Estoque: ${item.quantidadeEstoque}`, "small mt-2 mb-0"));
-        return div;
-    }
-
-    private criarSeletorQuantidade(estoque: number): HTMLElement {
-        const div = criarHTML("div");
-        div.className = "mb-4";
-        const select = criarHTML("select");
-        select.className = "form-select w-25";
-        select.id = "quantidade-selecionada";
-        const limite = Math.min(estoque, 10);
-        for (let i = 1; i <= limite; i++) {
-            const opt = this.criarElementoTexto("option", i.toString());
-            opt.value = i.toString();
-            select.appendChild(opt);
-        }
-        div.append(this.criarElementoTexto("label", "Quantidade:", "form-label fw-bold"), select);
+        div.append(this.criarElementoTexto("p", `Estoque: ${item.quantidadeEstoque} unidades`, "small mt-2 mb-0"));
         return div;
     }
 
@@ -81,8 +72,8 @@ export class DetalheItemViewEmDOM extends VisualizadorBase implements DetalheIte
         const btnAdd = this.criarElementoTexto("button", "Adicionar ao Carrinho", "btn btn-primary btn-lg");
         btnAdd.id = "btn-adicionar";
         btnAdd.onclick = () => {
-            const qtd = parseInt((obterHTML("#quantidade-selecionada") as HTMLSelectElement).value);
-            this.controladora.adicionarAoCarrinho(item.id, qtd);
+            const input = obterHTML("#stepper-detalhe input") as HTMLInputElement;
+            this.controladora.adicionarAoCarrinho(item.id, parseInt(input.value));
         };
         const btnIr = this.criarElementoTexto("button", "Ir para o Carrinho", "btn btn-outline-secondary");
         btnIr.onclick = () => this.navegarPara("/carrinho");

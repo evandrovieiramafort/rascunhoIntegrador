@@ -42,7 +42,10 @@ export class CarrinhoViewEmDOM extends VisualizadorBase implements CarrinhoView 
         const trH = criarHTML('tr');
         ['Produto', 'Preço', 'Quantidade', 'Subtotal', 'Ação'].forEach(t => {
             const th = this.criarElementoTexto('th', t);
-            if (t === 'Quantidade') th.style.width = '120px';
+            if (t === 'Quantidade' || t === 'Subtotal' || t === 'Ação' || t === 'Preço') {
+                th.className = 'text-center';
+            }
+            if (t === 'Quantidade') th.style.width = '140px';
             trH.appendChild(th);
         });
         thead.appendChild(trH);
@@ -64,49 +67,36 @@ export class CarrinhoViewEmDOM extends VisualizadorBase implements CarrinhoView 
         const tdProd = criarHTML('td');
         const divFlex = criarHTML('div');
         divFlex.className = 'd-flex align-items-center';
-        
         const img = criarHTML('img');
         img.src = ic.item.foto;
         img.className = 'img-thumbnail me-3';
         img.style.width = '64px';
-        
         const divTxt = criarHTML('div');
         divTxt.append(
             this.criarElementoTexto("h6", ic.item.descricao, "mb-0"),
             this.criarElementoTexto("small", `No carrinho: ${ic.quantidade}`, "text-primary d-block"),
-            this.criarElementoTexto("small", `Estoque: ${ic.item.quantidadeEstoque - ic.quantidade}`, "text-muted")
+            this.criarElementoTexto("small", `Estoque total: ${ic.item.quantidadeEstoque}`, "text-muted")
         );
         divFlex.append(img, divTxt);
         tdProd.appendChild(divFlex);
 
-        const tdPreco = this.criarElementoTexto("td", this.formatarC$(ic.item.precoFinal));
+        const tdPreco = this.criarElementoTexto("td", this.formatarC$(ic.item.precoFinal), "text-center");
 
         const tdQtd = criarHTML('td');
-        const select = criarHTML('select');
-        select.className = 'form-select';
-        const limiteSup = Math.min(ic.item.quantidadeEstoque, ic.quantidade + 10);
+        tdQtd.className = 'text-center';
+        tdQtd.appendChild(this.criarStepper(
+            ic.quantidade, 
+            ic.item.quantidadeEstoque, 
+            (novo) => this.controladora.atualizarQuantidade(ic.item.id, novo)
+        ));
 
-        for (let i = 1; i <= limiteSup; i++) {
-            const opt = this.criarElementoTexto("option", i.toString());
-            opt.value = i.toString();
-            if (i === ic.quantidade) opt.selected = true;
-            select.appendChild(opt);
-        }
-        select.onchange = () => this.controladora.atualizarQuantidade(ic.item.id, parseInt(select.value));
-        tdQtd.appendChild(select);
-
-        const tdSub = this.criarElementoTexto("td", this.formatarC$(ic.subtotal), "fw-bold");
+        const tdSub = this.criarElementoTexto("td", this.formatarC$(ic.subtotal), "fw-bold text-center");
 
         const tdAcao = criarHTML('td');
+        tdAcao.className = 'text-center';
         const btn = this.criarElementoTexto("button", "Remover", "btn btn-outline-danger btn-sm");
         btn.onclick = () => {
-            const modal = this.criarEstruturaModal(
-                "Confirmar", 
-                `Remover "${ic.item.descricao}"?`, 
-                "Remover", 
-                () => this.controladora.removerItem(ic.item.id), 
-                "danger"
-            );
+            const modal = this.criarEstruturaModal("Confirmar", `Remover "${ic.item.descricao}"?`, "Remover", () => this.controladora.removerItem(ic.item.id), "danger");
             document.body.appendChild(modal);
         };
         tdAcao.appendChild(btn);
