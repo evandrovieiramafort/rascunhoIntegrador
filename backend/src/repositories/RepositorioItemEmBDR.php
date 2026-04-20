@@ -42,7 +42,7 @@ class RepositorioItemEmBDR implements RepositorioItem
 
             return $itens;
         } catch (PDOException $e) {
-            throw new RepositorioException('Erro ao buscar itens mais vendidos.', 0, $e);
+            throw new RepositorioException('Erro ao buscar itens.', 0, $e);
         }
     }
 
@@ -84,7 +84,17 @@ class RepositorioItemEmBDR implements RepositorioItem
                 (int)$resultado['quantidade_estoque']
             );
         } catch (PDOException $e) {
-            throw new RepositorioException('Erro ao buscar item por ID.', 0, $e);
+            throw new RepositorioException('Erro ao buscar item.', 0, $e);
+        }
+    }
+
+    public function atualizarEstoque(int $id, int $novaQuantidade): void
+    {
+        try {
+            $ps = $this->pdo->prepare(Queries::ITEM_ATUALIZAR_QUANTIDADE_ESTOQUE);
+            $ps->execute([$novaQuantidade, $id]);
+        } catch (PDOException $e) {
+            throw new RepositorioException('Erro ao atualizar o estoque.', 0, $e);
         }
     }
 }

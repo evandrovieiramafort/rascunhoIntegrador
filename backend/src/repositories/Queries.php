@@ -7,6 +7,7 @@ class Queries {
     public const ITEM_BUSCAR_MAIS_VENDIDOS = "SELECT * FROM item ORDER BY total_vendas DESC LIMIT :limite OFFSET :offset";
     public const ITEM_CONTAR_TOTAL = "SELECT COUNT(*) FROM item";
     public const ITEM_BUSCAR_POR_ID = "SELECT * FROM item WHERE id = ?";
+    public const ITEM_ATUALIZAR_QUANTIDADE_ESTOQUE = "UPDATE item SET quantidade_estoque = ? WHERE id = ?";
     
     public const CATEGORIA_BUSCAR_TODAS = "SELECT * FROM categoria_produto";
     
