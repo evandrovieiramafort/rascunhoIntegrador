@@ -263,6 +263,7 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
         const divFooter = document.createElement('div');
         divFooter.className = 'modal-footer justify-content-center';
 
+        
         const btnVoltar = document.createElement('button');
         btnVoltar.className = 'btn btn-danger';
         btnVoltar.textContent = 'Voltar para Produtos';
