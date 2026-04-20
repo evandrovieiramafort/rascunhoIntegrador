@@ -1,5 +1,4 @@
 import { carregarPagina } from "./infra/spa";
-import { ErroViewEmDOM } from "./views/ErroViewEmDOM";
 import { CarrinhoService } from "./services/CarrinhoService";
 
 const appContainer = document.querySelector('#app') as HTMLElement;
@@ -40,8 +39,9 @@ async function rotearApp() {
         await visao.iniciar();
 
     } else {
-        const visaoErro = new ErroViewEmDOM();
-        visaoErro.exibirPaginaNaoEncontrada(appContainer, navegarParaHome);
+        const { HomeViewEmDOM } = await import('./views/HomeViewEmDOM');
+        const visaoErro = new HomeViewEmDOM();
+        visaoErro.exibir404(appContainer);
     }
 }
 

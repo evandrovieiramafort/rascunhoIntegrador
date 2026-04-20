@@ -1,193 +1,115 @@
 import { VisualizadorBase } from "./VisualizadorBase";
-import { ItemService } from "../services/ItemService";
-import { CarrinhoService } from "../services/CarrinhoService";
+import { DetalheController } from "../controllers/DetalheController";
 import { obterHTML, criarHTML, limparFilhos } from "../utils/UtilDOM";
 import type { ItemDTO } from "../domain/ItemDTO";
 import type { DetalheItemView } from "./interfaces/DetalheView";
 
 export class DetalheItemViewEmDOM extends VisualizadorBase implements DetalheItemView {
-    private servicoItem: ItemService;
-    private servicoCarrinho: CarrinhoService;
+    private controladora: DetalheController;
 
     constructor() {
         super();
-        this.servicoItem = new ItemService();
-        this.servicoCarrinho = new CarrinhoService();
+        this.controladora = new DetalheController(this);
     }
 
     async iniciar(idItem: number): Promise<void> {
-        this.exibirCarregamento();
-
-        try {
-            const item = await this.servicoItem.obterPorId(idItem);
-            if (item) {
-                this.exibirDetalhes(item);
-                if (item.quantidadeEstoque <= 0) {
-                    this.exibirModalEsgotado(item);
-                }
-            } else {
-                this.exibirErro("Produto não encontrado.");
-            }
-        } catch (erro) {
-            this.exibirErro("Falha ao carregar os detalhes do produto.");
-        }
+        await this.controladora.carregarDetalhes(idItem);
     }
 
     public exibirDetalhes(item: ItemDTO): void {
-        const divDetalhes = obterHTML("#detalhes-container");
-        limparFilhos(divDetalhes);
+        const container = obterHTML("#detalhes-container");
+        limparFilhos(container);
 
-        const divLinha = criarHTML("div");
-        divLinha.className = "row g-4";
+        const row = criarHTML('div');
+        row.className = 'row g-4';
 
-        divLinha.append(
-            this.criarColunaImagem(item), 
-            this.criarColunaInformacoes(item)
+        const colImg = criarHTML('div');
+        colImg.className = 'col-md-6';
+        const img = criarHTML('img');
+        img.src = item.foto;
+        img.className = 'img-fluid rounded shadow-sm';
+        colImg.appendChild(img);
+
+        const colInfo = criarHTML('div');
+        colInfo.className = 'col-md-6';
+        colInfo.append(
+            this.criarElementoTexto("h2", item.descricao),
+            this.criarElementoTexto("p", `Lançamento: ${item.periodoLancamento}`, "text-muted small"),
+            this.criarElementoTexto("p", item.descricaoDetalhada, "mb-4"),
+            this.criarAreaFinanceira(item)
         );
-        
-        divDetalhes.appendChild(divLinha);
-    }
-
-    public exibirCarregamento(): void {
-        const divDetalhes = obterHTML("#detalhes-container");
-        limparFilhos(divDetalhes);
-        divDetalhes.appendChild(this.criarSpinner());
-    }
-
-    public exibirErro(mensagem: string): void {
-        const divDetalhes = obterHTML("#detalhes-container");
-        limparFilhos(divDetalhes);
-        divDetalhes.appendChild(this.criarAlerta(mensagem, "warning"));
-    }
-
-    private criarColunaImagem(item: ItemDTO): HTMLElement {
-        const divColuna = criarHTML("div");
-        divColuna.className = "col-12 col-md-6";
-
-        const imgProduto = criarHTML("img");
-        imgProduto.src = item.foto;
-        imgProduto.alt = item.descricao;
-        imgProduto.className = "img-fluid rounded shadow-sm";
-        imgProduto.style.width = "100%";
-        imgProduto.style.maxHeight = "500px";
-        imgProduto.style.objectFit = "contain";
-        
-        divColuna.appendChild(imgProduto);
-        return divColuna;
-    }
-
-    private criarColunaInformacoes(item: ItemDTO): HTMLElement {
-        const divColuna = criarHTML("div");
-        divColuna.className = "col-12 col-md-6";
-
-        const h2Titulo = criarHTML("h2");
-        h2Titulo.className = "mb-1";
-        h2Titulo.textContent = item.descricao;
-
-        const pLancamento = criarHTML("p");
-        pLancamento.className = "text-muted small mb-3";
-        pLancamento.textContent = `Lançamento: ${item.periodoLancamento}`;
-
-        const pDescricaoLonga = criarHTML("p");
-        pDescricaoLonga.className = "mb-4";
-        pDescricaoLonga.textContent = item.descricaoDetalhada;
-
-        const divFinanceiro = criarHTML("div");
-        divFinanceiro.className = "mb-4 p-3 bg-light rounded";
-        divFinanceiro.appendChild(
-            this.criarPrecoArea(item.precoVenda, item.precoFinal, item.percentualDesconto)
-        );
-
-        const pEstoque = criarHTML("p");
-        pEstoque.className = "small mt-2 mb-0";
-        pEstoque.textContent = item.quantidadeEstoque > 0 
-            ? `Em estoque: ${item.quantidadeEstoque} unidades` 
-            : "Produto Esgotado";
-        divFinanceiro.appendChild(pEstoque);
-
-        divColuna.append(h2Titulo, pLancamento, pDescricaoLonga, divFinanceiro);
 
         if (item.quantidadeEstoque > 0) {
-            divColuna.appendChild(this.criarSeletorQuantidade(item.quantidadeEstoque));
-            divColuna.appendChild(this.criarBotoesAcao(item));
+            colInfo.append(this.criarSeletorQuantidade(item.quantidadeEstoque), this.criarBotoesAcao(item));
         }
 
-        return divColuna;
+        row.append(colImg, colInfo);
+        container.appendChild(row);
+
+        if (item.quantidadeEstoque <= 0) {
+            document.body.appendChild(this.criarEstruturaModal("Esgotado", "Indisponível.", "Voltar", () => this.navegarPara("/"), "danger"));
+        }
+    }
+
+    private criarAreaFinanceira(item: ItemDTO): HTMLElement {
+        const div = criarHTML('div');
+        div.className = 'mb-4 p-3 bg-light rounded';
+        div.append(this.criarPrecoArea(item.precoVenda, item.precoFinal, item.percentualDesconto));
+        div.append(this.criarElementoTexto("p", `Estoque: ${item.quantidadeEstoque}`, "small mt-2 mb-0"));
+        return div;
     }
 
     private criarSeletorQuantidade(estoque: number): HTMLElement {
-        const divGroup = criarHTML("div");
-        divGroup.className = "mb-4";
-
-        const label = criarHTML("label");
-        label.className = "form-label fw-bold";
-        label.textContent = "Quantidade:";
-
+        const div = criarHTML("div");
+        div.className = "mb-4";
         const select = criarHTML("select");
         select.className = "form-select w-25";
         select.id = "quantidade-selecionada";
-
-        const limiteSuperior = estoque < 10 ? estoque : 10;
-        for (let i = 1; i <= limiteSuperior; i++) {
-            const option = criarHTML("option");
-            option.value = i.toString();
-            option.textContent = i.toString();
-            select.appendChild(option);
+        const limite = Math.min(estoque, 10);
+        for (let i = 1; i <= limite; i++) {
+            const opt = this.criarElementoTexto("option", i.toString());
+            opt.value = i.toString();
+            select.appendChild(opt);
         }
-
-        divGroup.append(label, select);
-        return divGroup;
+        div.append(this.criarElementoTexto("label", "Quantidade:", "form-label fw-bold"), select);
+        return div;
     }
 
     private criarBotoesAcao(item: ItemDTO): HTMLElement {
-        const divBotoes = criarHTML("div");
-        divBotoes.className = "d-grid gap-2";
-
-        const btnAdicionar = criarHTML("button");
-        btnAdicionar.className = "btn btn-primary btn-lg";
-        btnAdicionar.textContent = "Adicionar ao Carrinho";
-        
-        btnAdicionar.onclick = async () => {
-            const selectQtd = obterHTML("#quantidade-selecionada") as HTMLSelectElement;
-            const qtd = parseInt(selectQtd.value, 10);
-            
-            btnAdicionar.disabled = true;
-            btnAdicionar.textContent = "Adicionando...";
-
-            try {
-                await this.servicoCarrinho.adicionarItem(item.id, qtd);
-                await this.servicoCarrinho.atualizarBadgeNav();
-                
-                btnAdicionar.classList.replace("btn-primary", "btn-success");
-                btnAdicionar.textContent = "Item Adicionado!";
-                
-                setTimeout(() => {
-                    this.iniciar(item.id);
-                }, 2000);
-            } catch (error: any) {
-                alert(error.message || "Quantidade indisponível em estoque.");
-                btnAdicionar.disabled = false;
-                btnAdicionar.textContent = "Adicionar ao Carrinho";
-            }
+        const div = criarHTML("div");
+        div.className = "d-grid gap-2";
+        const btnAdd = this.criarElementoTexto("button", "Adicionar ao Carrinho", "btn btn-primary btn-lg");
+        btnAdd.id = "btn-adicionar";
+        btnAdd.onclick = () => {
+            const qtd = parseInt((obterHTML("#quantidade-selecionada") as HTMLSelectElement).value);
+            this.controladora.adicionarAoCarrinho(item.id, qtd);
         };
-
-        const btnIrCarrinho = criarHTML("button");
-        btnIrCarrinho.className = "btn btn-outline-secondary";
-        btnIrCarrinho.textContent = "Ir para o Carrinho";
-        btnIrCarrinho.onclick = () => this.navegarPara("/carrinho");
-
-        divBotoes.append(btnAdicionar, btnIrCarrinho);
-        return divBotoes;
+        const btnIr = this.criarElementoTexto("button", "Ir para o Carrinho", "btn btn-outline-secondary");
+        btnIr.onclick = () => this.navegarPara("/carrinho");
+        div.append(btnAdd, btnIr);
+        return div;
     }
 
-    private exibirModalEsgotado(item: ItemDTO): void {
-        const modal = this.criarEstruturaModal(
-            "Aviso de Estoque",
-            `Lamentamos, mas o item "${item.descricao}" está esgotado no momento.`,
-            "Voltar para Produtos",
-            () => this.navegarPara("/"),
-            "danger"
-        );
-        document.body.appendChild(modal);
+    public notificarSucessoAdicao(): void {
+        const btn = obterHTML("#btn-adicionar") as HTMLButtonElement;
+        btn.classList.replace("btn-primary", "btn-success");
+        btn.textContent = "Item Adicionado!";
+        btn.disabled = true;
+    }
+
+    public notificarErroAdicao(msg: string): void {
+        alert(msg);
+    }
+
+    public exibirCarregamento(): void {
+        const c = obterHTML("#detalhes-container");
+        limparFilhos(c);
+        c.appendChild(this.criarSpinner());
+    }
+
+    public exibirErro(msg: string): void {
+        const c = obterHTML("#detalhes-container");
+        limparFilhos(c);
+        c.appendChild(this.criarAlerta(msg, "warning"));
     }
 }

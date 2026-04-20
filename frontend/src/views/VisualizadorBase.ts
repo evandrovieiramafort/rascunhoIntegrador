@@ -1,4 +1,4 @@
-import { criarHTML } from "../utils/UtilDOM";
+import { criarHTML, limparFilhos } from "../utils/UtilDOM";
 
 export abstract class VisualizadorBase {
   protected formatadorCefetins = new Intl.NumberFormat("pt-BR", {
@@ -93,5 +93,33 @@ export abstract class VisualizadorBase {
     dialog.appendChild(content);
     modal.appendChild(dialog);
     return modal;
+  }
+
+  public exibir404(container: HTMLElement): void {
+    limparFilhos(container);
+
+    const divCentro = criarHTML("div");
+    divCentro.className = "text-center mt-5";
+
+    const h1 = this.criarElementoTexto("h1", "404", "display-1 fw-bold");
+
+    const pMensagem = this.criarElementoTexto("p", "Página não encontrada.", "fs-3");
+    const spanOps = this.criarElementoTexto("span", "Ops! ", "text-danger");
+    pMensagem.prepend(spanOps);
+
+    const pDescricao = this.criarElementoTexto(
+      "p", 
+      "O endereço que você procura não existe no sistema Cefet Shop.", 
+      "lead"
+    );
+
+    const btnVoltar = this.criarElementoTexto("button", "Voltar para o início", "btn btn-primary");
+    btnVoltar.onclick = (e) => {
+      e.preventDefault();
+      this.navegarPara("/");
+    };
+
+    divCentro.append(h1, pMensagem, pDescricao, btnVoltar);
+    container.appendChild(divCentro);
   }
 }

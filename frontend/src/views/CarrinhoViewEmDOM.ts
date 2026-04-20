@@ -1,21 +1,20 @@
 import { VisualizadorBase } from "./VisualizadorBase";
-import { CarrinhoService } from "../services/CarrinhoService";
+import { CarrinhoController } from "../controllers/CarrinhoController";
 import { obterHTML, criarHTML, limparFilhos } from "../utils/UtilDOM";
 import type { CarrinhoDTO } from "../domain/CarrinhoDTO";
 import type { ItemCarrinhoDTO } from "../domain/ItemCarrinhoDTO";
+import type { CarrinhoView } from "./interfaces/CarrinhoView";
 
-export class CarrinhoViewEmDOM extends VisualizadorBase {
-    private servicoCarrinho = new CarrinhoService();
+export class CarrinhoViewEmDOM extends VisualizadorBase implements CarrinhoView {
+    private controladora: CarrinhoController;
+
+    constructor() {
+        super();
+        this.controladora = new CarrinhoController(this);
+    }
 
     async iniciar(): Promise<void> {
-        this.exibirCarregamento();
-        try {
-            const carrinho = await this.servicoCarrinho.obterCarrinho();
-            this.exibirCarrinho(carrinho);
-            this.servicoCarrinho.atualizarBadgeNav();
-        } catch {
-            this.exibirErro("Falha ao carregar o carrinho.");
-        }
+        await this.controladora.carregarCarrinho();
     }
 
     public exibirCarrinho(carrinho: CarrinhoDTO): void {
@@ -72,12 +71,11 @@ export class CarrinhoViewEmDOM extends VisualizadorBase {
         img.style.width = '64px';
         
         const divTxt = criarHTML('div');
-        divTxt.appendChild(this.criarElementoTexto("h6", ic.item.descricao, "mb-0"));
-        divTxt.appendChild(this.criarElementoTexto("small", `No carrinho: ${ic.quantidade}`, "text-primary d-block"));
-        
-        const estoqueDisponivel = ic.item.quantidadeEstoque - ic.quantidade;
-        divTxt.appendChild(this.criarElementoTexto("small", `Estoque: ${estoqueDisponivel}`, "text-muted"));
-        
+        divTxt.append(
+            this.criarElementoTexto("h6", ic.item.descricao, "mb-0"),
+            this.criarElementoTexto("small", `No carrinho: ${ic.quantidade}`, "text-primary d-block"),
+            this.criarElementoTexto("small", `Estoque: ${ic.item.quantidadeEstoque - ic.quantidade}`, "text-muted")
+        );
         divFlex.append(img, divTxt);
         tdProd.appendChild(divFlex);
 
@@ -86,24 +84,15 @@ export class CarrinhoViewEmDOM extends VisualizadorBase {
         const tdQtd = criarHTML('td');
         const select = criarHTML('select');
         select.className = 'form-select';
-        
-        const limiteSuperior = Math.min(ic.item.quantidadeEstoque, ic.quantidade + 10);
+        const limiteSup = Math.min(ic.item.quantidadeEstoque, ic.quantidade + 10);
 
-        for (let i = 1; i <= limiteSuperior; i++) {
+        for (let i = 1; i <= limiteSup; i++) {
             const opt = this.criarElementoTexto("option", i.toString());
             opt.value = i.toString();
             if (i === ic.quantidade) opt.selected = true;
             select.appendChild(opt);
         }
-        select.onchange = async () => {
-            try {
-                await this.servicoCarrinho.atualizarQuantidade(ic.item.id, parseInt(select.value));
-                this.iniciar();
-            } catch {
-                this.exibirMensagemFeedback("Erro: estoque insuficiente.");
-                this.iniciar();
-            }
-        };
+        select.onchange = () => this.controladora.atualizarQuantidade(ic.item.id, parseInt(select.value));
         tdQtd.appendChild(select);
 
         const tdSub = this.criarElementoTexto("td", this.formatarC$(ic.subtotal), "fw-bold");
@@ -113,12 +102,9 @@ export class CarrinhoViewEmDOM extends VisualizadorBase {
         btn.onclick = () => {
             const modal = this.criarEstruturaModal(
                 "Confirmar", 
-                `Remover "${ic.item.descricao}" do carrinho?`, 
+                `Remover "${ic.item.descricao}"?`, 
                 "Remover", 
-                async () => {
-                    await this.servicoCarrinho.removerItem(ic.item.id);
-                    this.iniciar();
-                }, 
+                () => this.controladora.removerItem(ic.item.id), 
                 "danger"
             );
             document.body.appendChild(modal);
@@ -132,15 +118,12 @@ export class CarrinhoViewEmDOM extends VisualizadorBase {
     private criarRodape(total: number): HTMLElement {
         const div = criarHTML('div');
         div.className = 'd-flex justify-content-end align-items-center bg-light p-4 rounded shadow-sm';
-        div.appendChild(this.criarElementoTexto("h4", `Total: ${this.formatarC$(total)}`, "mb-0 me-4 fw-bold"));
-        
-        const btn = this.criarElementoTexto("button", "Finalizar Compra", "btn btn-success btn-lg");
-        div.appendChild(btn);
-        
+        div.append(this.criarElementoTexto("h4", `Total: ${this.formatarC$(total)}`, "mb-0 me-4 fw-bold"));
+        div.append(this.criarElementoTexto("button", "Finalizar Compra", "btn btn-success btn-lg"));
         return div;
     }
 
-    private exibirMensagemFeedback(msg: string): void {
+    public exibirMensagemFeedback(msg: string): void {
         const container = obterHTML('#feedback-operacao-carrinho');
         const alerta = this.criarAlerta(msg, 'warning');
         alerta.classList.add('alert-dismissible', 'fade', 'show');
@@ -152,13 +135,13 @@ export class CarrinhoViewEmDOM extends VisualizadorBase {
         setTimeout(() => alerta.remove(), 4000);
     }
 
-    private exibirCarregamento(): void {
+    public exibirCarregamento(): void {
         const c = obterHTML("#carrinho-container");
         limparFilhos(c);
         c.appendChild(this.criarSpinner());
     }
 
-    private exibirErro(msg: string): void {
+    public exibirErro(msg: string): void {
         const c = obterHTML("#carrinho-container");
         limparFilhos(c);
         c.appendChild(this.criarAlerta(msg));

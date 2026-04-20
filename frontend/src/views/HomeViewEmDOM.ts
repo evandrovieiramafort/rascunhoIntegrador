@@ -1,26 +1,19 @@
 import { VisualizadorBase } from "./VisualizadorBase";
-import { ItemService } from "../services/ItemService.ts";
 import { obterHTML, limparFilhos, criarHTML } from "../utils/UtilDOM.ts";
+import { HomeController } from "../controllers/HomeController.ts";
 import type { ItemDTO } from "../domain/ItemDTO.ts";
 import type { HomeView } from "./interfaces/HomeView.ts";
 
 export class HomeViewEmDOM extends VisualizadorBase implements HomeView {
-  private servicoItem: ItemService;
+  private controladora: HomeController;
 
   constructor() {
     super();
-    this.servicoItem = new ItemService();
+    this.controladora = new HomeController(this);
   }
 
   async iniciar(paginaAtual: number = 1): Promise<void> {
-    this.exibirCarregamento();
-    try {
-      const dados = await this.servicoItem.obterItens(paginaAtual);
-      this.exibirItens(dados.itens);
-      this.exibirPaginacao(dados.paginaAtual, dados.totalPaginas);
-    } catch (erro) {
-      this.exibirErro("Não foi possível carregar os produtos do servidor.");
-    }
+    await this.controladora.carregarProdutos(paginaAtual);
   }
 
   public exibirItens(itens: ItemDTO[]): void {
@@ -94,17 +87,9 @@ export class HomeViewEmDOM extends VisualizadorBase implements HomeView {
     const divCorpo = criarHTML("div");
     divCorpo.className = "card-body d-flex flex-column";
 
-    const h5Titulo = criarHTML("h5");
-    h5Titulo.className = "card-title";
-    h5Titulo.textContent = item.descricao;
-
-    const pDescricao = criarHTML("p");
-    pDescricao.className = "card-text text-muted small flex-grow-1";
-    pDescricao.textContent = item.descricaoDetalhada;
-
     divCorpo.append(
-      h5Titulo, 
-      pDescricao, 
+      this.criarElementoTexto("h5", item.descricao, "card-title"), 
+      this.criarElementoTexto("p", item.descricaoDetalhada, "card-text text-muted small flex-grow-1"), 
       this.criarPrecoArea(item.precoVenda, item.precoFinal, item.percentualDesconto)
     );
 
