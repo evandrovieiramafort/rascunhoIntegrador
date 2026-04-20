@@ -9,6 +9,7 @@ class ItemDTO {
         public readonly string $descricao,
         public readonly string $descricaoDetalhada,
         public readonly float $precoVenda,
+        public readonly string $periodoLancamento,
         public readonly float $percentualDesconto,
         public readonly float $precoFinal,
         public readonly int $quantidadeEstoque,

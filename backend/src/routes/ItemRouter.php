@@ -46,4 +46,31 @@ return function ($app, $pdo) {
             }
         }
     );
+
+    $app->patch(
+        '/item/:id/estoque',
+        function (HttpRequest $req, HttpResponse $res) use ($pdo) {
+            $repo = new RepositorioItemEmBDR($pdo);
+            $id = (int) $req->param('id');
+            $dados = (array) $req->body();
+            $quantidadeDesejada = (int) ($dados['quantidade'] ?? 0);
+
+            try {
+                $item = $repo->ObterPorId($id);
+                if (!$item) {
+                    return $res->status(404)->json(['mensagem' => 'Item não encontrado']);
+                }
+                $novoEstoque = $item->getQuantidadeEstoque() - $quantidadeDesejada;
+
+                if ($novoEstoque < 0) {
+                    return $res->status(400)->json(['mensagem' => 'Estoque insuficiente']);
+                }
+
+                $repo->atualizarEstoque($id, $novoEstoque);
+                $res->status(200)->json(['mensagem' => 'Estoque atualizado', 'novo_estoque' => $novoEstoque]);
+            } catch (Exception $e) {
+                $res->status(500)->json(['mensagem' => $e->getMessage()]);
+            }
+        }
+    );
 };

@@ -45,6 +45,10 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
 
         divLinha.append(divColunaImagem, divColunaInfo);
         divDetalhes.appendChild(divLinha);
+
+        if (item.quantidadeEstoque <= 0) {
+            this.exibirModalEsgotado(item);
+        }
     }
 
     public exibirCarregamento(): void {
@@ -125,11 +129,6 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
         if (item.quantidadeEstoque > 0) {
             divColuna.appendChild(this.criarSeletorQuantidade(item.quantidadeEstoque));
             divColuna.appendChild(this.criarBotoesAcao(item));
-        } else {
-            const divEsgotado = document.createElement('div');
-            divEsgotado.className = 'alert alert-danger text-center fw-bold';
-            divEsgotado.textContent = 'Esgotado';
-            divColuna.appendChild(divEsgotado);
         }
 
         return divColuna;
@@ -157,7 +156,9 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
 
         const pEstoque = document.createElement('p');
         pEstoque.className = 'small mt-2 mb-0';
-        pEstoque.textContent = `Em estoque: ${item.quantidadeEstoque} unidades`;
+        pEstoque.textContent = item.quantidadeEstoque > 0 
+            ? `Em estoque: ${item.quantidadeEstoque} unidades` 
+            : "Produto Esgotado";
 
         divFinanceiro.append(h3PrecoFinal, pEstoque);
         return divFinanceiro;
@@ -210,12 +211,10 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
                 btnAdicionar.textContent = 'Item Adicionado!';
                 
                 setTimeout(() => {
-                    btnAdicionar.classList.replace('btn-success', 'btn-primary');
-                    btnAdicionar.textContent = 'Adicionar ao Carrinho';
-                    btnAdicionar.disabled = false;
+                    this.iniciar(item.id);
                 }, 2000);
-            } catch (error) {
-                alert("Erro ao adicionar ao carrinho.");
+            } catch (error: any) {
+                alert(error.message || "Quantidade indisponível em estoque.");
                 btnAdicionar.disabled = false;
                 btnAdicionar.textContent = 'Adicionar ao Carrinho';
             }
@@ -231,6 +230,54 @@ export class DetalheItemViewEmDOM implements DetalheItemView {
 
         divBotoes.append(btnAdicionar, btnIrCarrinho);
         return divBotoes;
+    }
+
+    private exibirModalEsgotado(item: ItemDTO): void {
+        const divModal = document.createElement('div');
+        divModal.className = 'modal fade show';
+        divModal.style.display = 'block';
+        divModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        divModal.setAttribute('role', 'dialog');
+
+        const divDialog = document.createElement('div');
+        divDialog.className = 'modal-dialog modal-dialog-centered';
+
+        const divContent = document.createElement('div');
+        divContent.className = 'modal-content border-danger';
+
+        const divHeader = document.createElement('div');
+        divHeader.className = 'modal-header bg-danger text-white';
+        const h5 = document.createElement('h5');
+        h5.className = 'modal-title';
+        h5.textContent = 'Aviso de Estoque';
+        divHeader.appendChild(h5);
+
+        const divBody = document.createElement('div');
+        divBody.className = 'modal-body text-center p-4';
+        
+        const pAviso = document.createElement('p');
+        pAviso.className = 'mb-0 fw-bold';
+        pAviso.textContent = `Lamentamos, mas o item "${item.descricao}" está esgotado no momento.`;
+        divBody.appendChild(pAviso);
+
+        const divFooter = document.createElement('div');
+        divFooter.className = 'modal-footer justify-content-center';
+
+        
+        const btnVoltar = document.createElement('button');
+        btnVoltar.className = 'btn btn-danger';
+        btnVoltar.textContent = 'Voltar para Produtos';
+        btnVoltar.onclick = () => {
+            divModal.remove();
+            window.history.pushState({}, '', '/');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+        };
+
+        divFooter.appendChild(btnVoltar);
+        divContent.append(divHeader, divBody, divFooter);
+        divDialog.appendChild(divContent);
+        divModal.appendChild(divDialog);
+        document.body.appendChild(divModal);
     }
 
     private formatarC$(valor: number | string): string {

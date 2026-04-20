@@ -11,4 +11,5 @@ interface RepositorioItem {
     public function obterTodosOsItens(int $pagina): array;
     public function contarTotalItens(): int;
     public function ObterPorId(int $id): ?Item;
+    public function atualizarEstoque(int $id, int $novaQuantidade): void;
 }
