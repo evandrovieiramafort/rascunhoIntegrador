@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Repositories\RepositorioItem;
 use App\Mappers\MapperItem;
 use App\Dto\PaginacaoDTO;
-use App\Exceptions\DominioException;
+use App\Exceptions\EntidadeNaoEncontradaException;
+use App\Exceptions\FalhaNaBuscaException;
+use App\Models\Item;
 
 class ItemService {
     public function __construct(
@@ -15,8 +17,8 @@ class ItemService {
     public function ObterTodosOsItens(int $pagina): PaginacaoDTO {
         $itensModel = $this->repositorio->obterTodosOsItens($pagina);
         
-        if($itensModel == 0 ){
-            throw new DominioException("A busca retornou zero resultados!");
+        if (empty($itensModel)) {
+            throw new FalhaNaBuscaException();
         }
         
         $totalItens = $this->repositorio->contarTotalItens();
@@ -30,12 +32,14 @@ class ItemService {
     }
 
     public function ObterPorId(int $id) {
-        $itemModel = $this->repositorio->obterPorId($id);
-        
-        if(!$itemModel){
-            throw new DominioException("Item não encontrado!");
-        }
+        return MapperItem::paraDTO($this->buscarItem($id));
+    }
 
-        return MapperItem::paraDTO($itemModel);
+    public function buscarItem(int $id): Item {
+        $item = $this->repositorio->obterPorId($id);
+        if (!$item) {
+            throw new EntidadeNaoEncontradaException("Item", $id);
+        }
+        return $item;
     }
 }
