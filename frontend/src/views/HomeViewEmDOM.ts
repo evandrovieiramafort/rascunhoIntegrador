@@ -99,7 +99,7 @@ export class HomeViewEmDOM extends VisualizadorBase implements HomeView {
     const buttonComprar = criarHTML("button");
     buttonComprar.className = "btn btn-primary w-100";
     buttonComprar.disabled = item.estaEsgotado;
-    buttonComprar.textContent = item.estaEsgotado ? "Sem estoque" : "Comprar";
+    buttonComprar.textContent = item.estaEsgotado ? "Sem estoque" : "Detalhes";
     
     if (!item.estaEsgotado) {
       buttonComprar.onclick = () => this.navegarPara(`/detalhes?id=${item.id}`);

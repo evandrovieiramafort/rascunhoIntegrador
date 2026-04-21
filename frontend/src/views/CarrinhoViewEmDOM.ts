@@ -64,6 +64,8 @@ export class CarrinhoViewEmDOM extends VisualizadorBase implements CarrinhoView 
     private criarLinhaItem(ic: ItemCarrinhoDTO): HTMLElement {
         const tr = criarHTML('tr');
 
+        if (!ic.item) return tr;
+
         const tdProd = criarHTML('td');
         const divFlex = criarHTML('div');
         divFlex.className = 'd-flex align-items-center';
@@ -72,6 +74,7 @@ export class CarrinhoViewEmDOM extends VisualizadorBase implements CarrinhoView 
         img.className = 'img-thumbnail me-3';
         img.style.width = '64px';
         const divTxt = criarHTML('div');
+
         divTxt.append(
             this.criarElementoTexto("h6", ic.item.descricao, "mb-0"),
             this.criarElementoTexto("small", `No carrinho: ${ic.quantidade}`, "text-primary d-block"),
@@ -84,10 +87,15 @@ export class CarrinhoViewEmDOM extends VisualizadorBase implements CarrinhoView 
 
         const tdQtd = criarHTML('td');
         tdQtd.className = 'text-center';
+
+        // REGRA DE NEGÓCIO: Limite de 10 unidades ou o valor em estoque 
+        const limiteMaximo = Math.min(10, ic.item.quantidadeEstoque);
+
         tdQtd.appendChild(this.criarStepper(
             ic.quantidade, 
-            ic.item.quantidadeEstoque, 
-            (novo) => this.controladora.atualizarQuantidade(ic.item.id, novo)
+            limiteMaximo, 
+            "140px",
+            (novo: number) => this.controladora.atualizarQuantidade(ic.item.id, novo)
         ));
 
         const tdSub = this.criarElementoTexto("td", this.formatarC$(ic.subtotal), "fw-bold text-center");

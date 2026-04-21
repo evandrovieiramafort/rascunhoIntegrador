@@ -31,20 +31,21 @@ export abstract class VisualizadorBase {
   protected criarStepper(
     valorInicial: number, 
     maximo: number, 
+    largura: string = "140px",
     aoMudar?: (novoValor: number) => void
   ): HTMLElement {
     const divGroup = criarHTML("div");
-    divGroup.className = "input-group input-group-sm mx-auto";
-    divGroup.style.width = "110px";
+    divGroup.className = "input-group shadow-sm";
+    divGroup.style.width = largura;
 
-    const btnMenos = this.criarElementoTexto("button", "-", "btn btn-outline-secondary");
+    const btnMenos = this.criarElementoTexto("button", "-", "btn btn-outline-secondary px-3");
     const inputQtd = criarHTML("input");
     inputQtd.type = "text";
     inputQtd.className = "form-control text-center fw-bold bg-white";
     inputQtd.value = valorInicial.toString();
     inputQtd.readOnly = true;
 
-    const btnMais = this.criarElementoTexto("button", "+", "btn btn-outline-secondary");
+    const btnMais = this.criarElementoTexto("button", "+", "btn btn-outline-secondary px-3");
 
     btnMenos.onclick = () => {
       const atual = parseInt(inputQtd.value);
@@ -77,7 +78,7 @@ export abstract class VisualizadorBase {
     if (percentualDesconto > 0) {
       divPreco.appendChild(this.criarElementoTexto("small", this.formatarC$(precoVenda), "text-decoration-line-through text-muted d-block"));
     }
-    divPreco.appendChild(this.criarElementoTexto("span", this.formatarC$(precoFinal), "fs-5 fw-bold text-primary"));
+    divPreco.appendChild(this.criarElementoTexto("span", this.formatarC$(precoFinal), "fs-4 fw-bold text-primary"));
     return divPreco;
   }
 
@@ -96,18 +97,33 @@ export abstract class VisualizadorBase {
     return this.criarElementoTexto("div", mensagem, `alert alert-${tipo} w-100`);
   }
 
-  protected criarEstruturaModal(titulo: string, corpo: HTMLElement | string, textoBtn: string, acao: () => void, corBtn: string = "primary"): HTMLElement {
+  protected criarEstruturaModal(
+    titulo: string, 
+    corpo: HTMLElement | string, 
+    textoBtn: string, 
+    acao: () => void, 
+    corBtn: string = "primary"
+  ): HTMLElement {
     const modal = criarHTML("div");
     modal.className = "modal fade show d-block";
     modal.style.backgroundColor = "rgba(0,0,0,0.5)";
     modal.setAttribute("role", "dialog");
+
     const dialog = criarHTML("div");
     dialog.className = "modal-dialog modal-dialog-centered";
+
     const content = criarHTML("div");
     content.className = "modal-content shadow";
+
     const header = criarHTML("div");
-    header.className = "modal-header";
+    header.className = "modal-header d-flex justify-content-between align-items-center";
     header.appendChild(this.criarElementoTexto("h5", titulo, "modal-title"));
+    
+    const btnFecharX = criarHTML("button");
+    btnFecharX.className = "btn-close";
+    btnFecharX.onclick = () => modal.remove();
+    header.appendChild(btnFecharX);
+
     const body = criarHTML("div");
     body.className = "modal-body text-center p-4";
     if (typeof corpo === "string") {
@@ -115,14 +131,24 @@ export abstract class VisualizadorBase {
     } else {
       body.appendChild(corpo);
     }
+
     const footer = criarHTML("div");
     footer.className = "modal-footer justify-content-center";
-    const btn = this.criarElementoTexto("button", textoBtn, `btn btn-${corBtn}`);
-    btn.onclick = () => { acao(); modal.remove(); };
-    footer.appendChild(btn);
+
+    const btnCancelar = this.criarElementoTexto("button", "Cancelar", "btn btn-secondary me-2");
+    btnCancelar.onclick = () => modal.remove();
+
+    const btnAcao = this.criarElementoTexto("button", textoBtn, `btn btn-${corBtn}`);
+    btnAcao.onclick = () => { 
+      acao(); 
+      modal.remove(); 
+    };
+
+    footer.append(btnCancelar, btnAcao);
     content.append(header, body, footer);
     dialog.appendChild(content);
     modal.appendChild(dialog);
+    
     return modal;
   }
 

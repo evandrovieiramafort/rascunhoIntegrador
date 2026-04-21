@@ -1,55 +1,70 @@
-import { API_URL } from "../infra/conf";
 import type { CarrinhoDTO } from "../domain/CarrinhoDTO";
+import type { ItemCarrinhoDTO } from "../domain/ItemCarrinhoDTO";
+import type { ItemDTO } from "../domain/ItemDTO";
 
 export class CarrinhoService {
-    private configuracaoFetch: RequestInit = {
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
+    private readonly STORAGE_KEY = 'cefet_shop_cart';
 
     async obterCarrinho(): Promise<CarrinhoDTO> {
-        const response = await fetch(`${API_URL}/carrinho`, this.configuracaoFetch);
-        if (!response.ok) throw new Error("Erro ao obter carrinho.");
-        return await response.json();
+        const dados = localStorage.getItem(this.STORAGE_KEY);
+        const itens: ItemCarrinhoDTO[] = dados ? JSON.parse(dados) : [];
+        const totalGeral = itens.reduce((acc, curr) => acc + (curr.subtotal || 0), 0);
+        
+        return {
+            id: "1",
+            itens,
+            totalGeral
+        };
     }
 
-    async adicionarItem(itemId: number, quantidade: number): Promise<CarrinhoDTO> {
-        const response = await fetch(`${API_URL}/carrinho/item`, {
-            ...this.configuracaoFetch,
-            method: 'POST',
-            body: JSON.stringify({ item_id: itemId, quantidade })
-        });
-        if (!response.ok) throw new Error("Erro ao adicionar item.");
-        return await response.json();
+    async adicionarItem(item: ItemDTO, quantidade: number): Promise<CarrinhoDTO> {
+        const carrinho = await this.obterCarrinho();
+        const index = carrinho.itens.findIndex(ic => ic.item && ic.item.id === item.id);
+
+        if (index !== -1) {
+            carrinho.itens[index].quantidade += quantidade;
+            carrinho.itens[index].subtotal = carrinho.itens[index].quantidade * item.precoFinal;
+        } else {
+            carrinho.itens.push({
+                item: item,
+                quantidade: quantidade,
+                subtotal: item.precoFinal * quantidade
+            });
+        }
+
+        this.salvar(carrinho.itens);
+        return this.obterCarrinho();
     }
 
     async atualizarQuantidade(itemId: number, quantidade: number): Promise<CarrinhoDTO> {
-        const response = await fetch(`${API_URL}/carrinho/item/${itemId}`, {
-            ...this.configuracaoFetch,
-            method: 'PUT',
-            body: JSON.stringify({ quantidade })
-        });
-        if (!response.ok) throw new Error("Erro ao atualizar quantidade.");
-        return await response.json();
+        const carrinho = await this.obterCarrinho();
+        const itemCarrinho = carrinho.itens.find(ic => ic.item && ic.item.id === itemId);
+
+        if (itemCarrinho) {
+            itemCarrinho.quantidade = quantidade;
+            itemCarrinho.subtotal = quantidade * itemCarrinho.item.precoFinal;
+            this.salvar(carrinho.itens);
+        }
+
+        return this.obterCarrinho();
     }
 
     async removerItem(itemId: number): Promise<CarrinhoDTO> {
-        const response = await fetch(`${API_URL}/carrinho/item/${itemId}`, {
-            ...this.configuracaoFetch,
-            method: 'DELETE'
-        });
-        if (!response.ok) throw new Error("Erro ao remover item.");
-        return await response.json();
+        const carrinho = await this.obterCarrinho();
+        const novosItens = carrinho.itens.filter(ic => ic.item && ic.item.id !== itemId);
+        
+        this.salvar(novosItens);
+        return this.obterCarrinho();
+    }
+
+    private salvar(itens: ItemCarrinhoDTO[]): void {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(itens));
     }
 
     async atualizarBadgeNav(): Promise<void> {
         try {
             const carrinho = await this.obterCarrinho();
-            let totalItens = 0;
-            
-            carrinho.itens.forEach(ic => totalItens += ic.quantidade);
+            const totalItens = carrinho.itens.reduce((acc, ic) => acc + ic.quantidade, 0);
 
             const badge = document.querySelector('#badge-carrinho') as HTMLElement;
             if (badge) {
@@ -61,7 +76,7 @@ export class CarrinhoService {
                 }
             }
         } catch (error) {
-            console.error("Erro ao atualizar badge do carrinho", error);
+            console.error(error);
         }
     }
 }

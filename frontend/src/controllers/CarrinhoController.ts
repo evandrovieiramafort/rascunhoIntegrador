@@ -25,8 +25,7 @@ export class CarrinhoController {
             this.visao.exibirCarrinho(carrinho);
             await this.servico.atualizarBadgeNav();
         } catch {
-            this.visao.exibirMensagemFeedback("Erro: estoque insuficiente.");
-            await this.carregarCarrinho(); // Recarrega para sincronizar
+            this.visao.exibirMensagemFeedback("Erro ao atualizar quantidade de produtos.");
         }
     }
 
@@ -36,7 +35,7 @@ export class CarrinhoController {
             this.visao.exibirCarrinho(carrinho);
             await this.servico.atualizarBadgeNav();
         } catch {
-            this.visao.exibirErro("Não foi possível remover o item.");
+            this.visao.exibirErro("Não foi possível remover o item do carrinho.");
         }
     }
 }

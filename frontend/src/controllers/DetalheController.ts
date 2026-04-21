@@ -1,6 +1,7 @@
 import { ItemService } from "../services/ItemService";
 import { CarrinhoService } from "../services/CarrinhoService";
 import type { DetalheItemView } from "../views/interfaces/DetalheView";
+import type { ItemDTO } from "../domain/ItemDTO";
 
 export class DetalheController {
     private servicoItem: ItemService;
@@ -25,17 +26,20 @@ export class DetalheController {
         }
     }
 
-    async adicionarAoCarrinho(itemId: number, quantidade: number): Promise<void> {
+    async adicionarAoCarrinho(item: ItemDTO, quantidade: number): Promise<void> {
         try {
-            await this.servicoCarrinho.adicionarItem(itemId, quantidade);
+            await this.servicoCarrinho.adicionarItem(item, quantidade);
             await this.servicoCarrinho.atualizarBadgeNav();
+            
             this.visao.notificarSucessoAdicao();
             
             setTimeout(() => {
-                this.carregarDetalhes(itemId);
-            }, 2000);
+                window.history.pushState({}, '', '/');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+            }, 800); 
+
         } catch (erro: any) {
-            this.visao.notificarErroAdicao(erro.message || "Estoque insuficiente.");
+            this.visao.notificarErroAdicao(erro.message || "Erro ao adicionar.");
         }
     }
 }
