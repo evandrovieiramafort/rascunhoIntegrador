@@ -70,7 +70,9 @@ class RepositorioItemEmBDR implements RepositorioItem {
             /** @var array{id: int|string, categoria_id: int|string, foto: string, descricao: string, descricao_detalhada: string, periodo_lancamento: string, preco_venda: float|string, percentual_desconto: float|string, quantidade_estoque: int|string}|false $res */
             $res = $ps->fetch(PDO::FETCH_ASSOC);
 
-            if ($res === false) return null;
+            if ($res === false) {
+                return null;
+            }
 
             return new Item(
                 (int)$res['id'],
@@ -85,15 +87,6 @@ class RepositorioItemEmBDR implements RepositorioItem {
             );
         } catch (PDOException $e) {
             throw new RepositorioException('Erro ao buscar item.', 0, $e);
-        }
-    }
-
-    public function atualizarEstoque(int $id, int $novaQuantidade): void {
-        try {
-            $ps = $this->getPdo()->prepare(Queries::ITEM_ATUALIZAR_QUANTIDADE_ESTOQUE);
-            $ps->execute([$novaQuantidade, $id]);
-        } catch (PDOException $e) {
-            throw new RepositorioException('Erro ao atualizar o estoque.', 0, $e);
         }
     }
 }

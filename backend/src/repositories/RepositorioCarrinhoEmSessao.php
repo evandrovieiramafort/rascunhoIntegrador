@@ -7,9 +7,10 @@ use App\Models\ItemCarrinho;
 
 class RepositorioCarrinhoEmSessao implements RepositorioCarrinho {
     public function __construct() {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
+        if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+        
         if (!isset($_SESSION['carrinho'])) {
             $_SESSION['carrinho'] = [];
         }

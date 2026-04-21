@@ -9,5 +9,7 @@ interface RepositorioItem {
     public function obterTodosOsItens(int $pagina): array;
     public function contarTotalItens(): int;
     public function ObterPorId(int $id): ?Item;
-    public function atualizarEstoque(int $id, int $novaQuantidade): void;
+    
+    // método utilizado apenas na P2; não vou deletar, vou manter aqui já pronto
+    // public function atualizarEstoque(int $id, int $novaQuantidade): void;
 }

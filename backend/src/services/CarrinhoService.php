@@ -24,44 +24,57 @@ class CarrinhoService {
     }
 
     public function adicionarItem(string $sessaoId, int $itemId, int $quantidade): CarrinhoDTO {
-        $itemModel = $this->validarEstoque($itemId, $quantidade);
+        $itemModel = $this->repoItem->ObterPorId($itemId);
+        if (!$itemModel) {
+            throw new EntidadeNaoEncontradaException("Item", $itemId);
+        }
+
         $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId) ?? new Carrinho($sessaoId);
         
+        $quantidadeNoCarrinho = 0;
+        foreach ($carrinho->getItens() as $ic) {
+            if ($ic->getItem()->getId() === $itemId) {
+                $quantidadeNoCarrinho = $ic->getQuantidade();
+                break;
+            }
+        }
+
+        $novaQuantidade = $quantidadeNoCarrinho + $quantidade;
+        $this->validarRegraQuantidade($itemModel, $novaQuantidade);
+
         $desconto = $itemModel->getPercentualDesconto() / 100;
         $precoFinal = $itemModel->getPrecoVenda() * (1 - $desconto);
-        $subtotal = (float) ($precoFinal * $quantidade);
+        $subtotal = (float) ($precoFinal * $novaQuantidade);
 
         $carrinho->adicionarItem(new ItemCarrinho($sessaoId, $itemModel, $quantidade, $subtotal));
     
-        return $this->salvarEAtualizarEstoque($carrinho, $itemId, -$quantidade);
+        return $this->salvarCarrinho($carrinho);
     }
 
     public function atualizarQuantidade(string $sessaoId, int $itemId, int $quantidade): CarrinhoDTO {
-        $carrinho = $this->buscarCarrinho($sessaoId);
-        $ic = $this->buscarItemNoCarrinho($carrinho, $itemId);
-        
-        $diferenca = $quantidade - $ic->getQuantidade();
-        $this->validarEstoque($itemId, $diferenca);
+        $itemModel = $this->repoItem->ObterPorId($itemId);
+        if (!$itemModel) {
+            throw new EntidadeNaoEncontradaException("Item", $itemId);
+        }
 
+        $carrinho = $this->buscarCarrinho($sessaoId);
+        
         if ($quantidade <= 0) {
             $carrinho->removerItem($itemId);
         } else {
+            $this->validarRegraQuantidade($itemModel, $quantidade);
             $carrinho->atualizarQuantidade($itemId, $quantidade);
         }
 
-        return $this->salvarEAtualizarEstoque($carrinho, $itemId, -$diferenca);
+        return $this->salvarCarrinho($carrinho);
     }
 
     public function removerItem(string $sessaoId, int $itemId): CarrinhoDTO {
         $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId);
-        
         if ($carrinho) {
-            $ic = $this->buscarItemNoCarrinho($carrinho, $itemId);
-            $quantidadeADevolver = $ic->getQuantidade();
             $carrinho->removerItem($itemId);
-            return $this->salvarEAtualizarEstoque($carrinho, $itemId, $quantidadeADevolver);
+            return $this->salvarCarrinho($carrinho);
         }
-        
         return MapperCarrinho::paraDTO(new Carrinho($sessaoId));
     }
 
@@ -73,36 +86,17 @@ class CarrinhoService {
         return $carrinho;
     }
 
-    private function buscarItemNoCarrinho(Carrinho $carrinho, int $itemId): ItemCarrinho {
-        foreach ($carrinho->getItens() as $ic) {
-            if ($ic->getItem()->getId() === $itemId) {
-                return $ic;
-            }
-        }
-        throw new EntidadeNaoEncontradaException("Item no Carrinho", $itemId);
-    }
-
-    private function validarEstoque(int $itemId, int $quantidadeNecessaria): Item {
-        $item = $this->repoItem->ObterPorId($itemId);
-        if (!$item) {
-            throw new EntidadeNaoEncontradaException("Item", $itemId);
-        }
+    private function validarRegraQuantidade(Item $item, int $quantidadeFinal): void {
+        $estoqueDisponivel = $item->getQuantidadeEstoque();
+        $limitePermitido = min(10, $estoqueDisponivel);
         
-        if ($quantidadeNecessaria > 0 && $item->getQuantidadeEstoque() < $quantidadeNecessaria) {
+        if ($quantidadeFinal > $limitePermitido) {
             throw new EstoqueInsuficienteException($item->getDescricao());
         }
-        return $item;
     }
 
-    private function salvarEAtualizarEstoque(Carrinho $carrinho, int $itemId, int $variacaoEstoque): CarrinhoDTO {
-        $item = $this->repoItem->ObterPorId($itemId);
-        if (!$item) {
-            throw new EntidadeNaoEncontradaException("Item", $itemId);
-        }
-        
-        $this->repoItem->atualizarEstoque($itemId, $item->getQuantidadeEstoque() + $variacaoEstoque);
+    private function salvarCarrinho(Carrinho $carrinho): CarrinhoDTO {
         $this->repoCarrinho->salvarCarrinho($carrinho);
-        
         return MapperCarrinho::paraDTO($carrinho);
     }
 }
