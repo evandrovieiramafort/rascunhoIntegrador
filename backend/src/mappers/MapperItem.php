@@ -7,7 +7,7 @@ use App\Dto\ItemDTO;
 
 class MapperItem {
     public static function paraDTO(Item $item): ItemDTO {
-        $desconto = $item->getPercentualDesconto() / 100;
+        $desconto = (float) $item->getPercentualDesconto() / 100;
         $precoVenda = (float) $item->getPrecoVenda();
         $precoFinal = $precoVenda * (1 - $desconto);
         
@@ -18,14 +18,18 @@ class MapperItem {
             $item->getDescricaoDetalhada(),
             $precoVenda,
             $item->getPeriodoLancamento(),
-            $item->getPercentualDesconto(),
+            (float) $item->getPercentualDesconto(),
             (float) $precoFinal,
             $item->getQuantidadeEstoque(),
             $item->getQuantidadeEstoque() <= 0
         );
     }
 
+    /**
+     * @param list<Item> $itensModel
+     * @return list<ItemDTO>
+     */
     public static function paraListaDTO(array $itensModel): array {
-        return array_map(fn($item) => self::paraDTO($item), $itensModel);
+        return array_map(fn(Item $item) => self::paraDTO($item), $itensModel);
     }
 }

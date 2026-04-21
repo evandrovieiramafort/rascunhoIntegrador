@@ -13,10 +13,9 @@ use function phputil\cors\cors;
 
 const NOME_DB = "cefetshop_bd_prd";
 
-$pdo = null;
 try {
     $pdo = conectarAoDB(NOME_DB);
-} catch (PDOException $e) {
+} catch (Exception $e) {
     http_response_code(500);
     die('Erro ao conectar com o banco de dados.');
 }
@@ -35,6 +34,7 @@ $rotas = [
 ];
 
 foreach ($rotas as $r) {
+    /** @var callable(Router, PDO): void $f */
     $f = require_once $r;
     $f($app, $pdo);
 }

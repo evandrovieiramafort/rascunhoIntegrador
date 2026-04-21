@@ -5,9 +5,7 @@ namespace App\Repositories;
 use App\Models\Item;
 
 interface RepositorioItem {
-    /**
-     * @return Item[]
-     */
+    /** @return list<Item> */
     public function obterTodosOsItens(int $pagina): array;
     public function contarTotalItens(): int;
     public function ObterPorId(int $id): ?Item;

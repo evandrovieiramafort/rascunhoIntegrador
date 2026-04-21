@@ -6,6 +6,7 @@ use App\Repositories\RepositorioCarrinho;
 use App\Repositories\RepositorioItem;
 use App\Models\Carrinho;
 use App\Models\ItemCarrinho;
+use App\Models\Item;
 use App\Dto\CarrinhoDTO;
 use App\Mappers\MapperCarrinho;
 use App\Exceptions\EntidadeNaoEncontradaException;
@@ -24,11 +25,11 @@ class CarrinhoService {
 
     public function adicionarItem(string $sessaoId, int $itemId, int $quantidade): CarrinhoDTO {
         $itemModel = $this->validarEstoque($itemId, $quantidade);
-
         $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId) ?? new Carrinho($sessaoId);
         
-        $precoFinal = $itemModel->getPrecoVenda() * (1 - ($itemModel->getPercentualDesconto() / 100));
-        $subtotal = $precoFinal * $quantidade;
+        $desconto = $itemModel->getPercentualDesconto() / 100;
+        $precoFinal = $itemModel->getPrecoVenda() * (1 - $desconto);
+        $subtotal = (float) ($precoFinal * $quantidade);
 
         $carrinho->adicionarItem(new ItemCarrinho($sessaoId, $itemModel, $quantidade, $subtotal));
     
@@ -40,7 +41,6 @@ class CarrinhoService {
         $ic = $this->buscarItemNoCarrinho($carrinho, $itemId);
         
         $diferenca = $quantidade - $ic->getQuantidade();
-        
         $this->validarEstoque($itemId, $diferenca);
 
         if ($quantidade <= 0) {
@@ -58,16 +58,13 @@ class CarrinhoService {
         if ($carrinho) {
             $ic = $this->buscarItemNoCarrinho($carrinho, $itemId);
             $quantidadeADevolver = $ic->getQuantidade();
-            
             $carrinho->removerItem($itemId);
-            
             return $this->salvarEAtualizarEstoque($carrinho, $itemId, $quantidadeADevolver);
         }
         
         return MapperCarrinho::paraDTO(new Carrinho($sessaoId));
     }
 
-    // métodos auxiliares
     private function buscarCarrinho(string $sessaoId): Carrinho {
         $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId);
         if (!$carrinho) {
@@ -85,7 +82,7 @@ class CarrinhoService {
         throw new EntidadeNaoEncontradaException("Item no Carrinho", $itemId);
     }
 
-    private function validarEstoque(int $itemId, int $quantidadeNecessaria) {
+    private function validarEstoque(int $itemId, int $quantidadeNecessaria): Item {
         $item = $this->repoItem->ObterPorId($itemId);
         if (!$item) {
             throw new EntidadeNaoEncontradaException("Item", $itemId);
@@ -99,6 +96,9 @@ class CarrinhoService {
 
     private function salvarEAtualizarEstoque(Carrinho $carrinho, int $itemId, int $variacaoEstoque): CarrinhoDTO {
         $item = $this->repoItem->ObterPorId($itemId);
+        if (!$item) {
+            throw new EntidadeNaoEncontradaException("Item", $itemId);
+        }
         
         $this->repoItem->atualizarEstoque($itemId, $item->getQuantidadeEstoque() + $variacaoEstoque);
         $this->repoCarrinho->salvarCarrinho($carrinho);

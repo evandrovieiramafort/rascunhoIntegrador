@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\RepositorioItem;
 use App\Mappers\MapperItem;
 use App\Dto\PaginacaoDTO;
+use App\Dto\ItemDTO;
 use App\Exceptions\EntidadeNaoEncontradaException;
 use App\Exceptions\FalhaNaBuscaException;
 use App\Models\Item;
@@ -31,7 +32,7 @@ class ItemService {
         );
     }
 
-    public function ObterPorId(int $id) {
+    public function ObterPorId(int $id): ItemDTO {
         return MapperItem::paraDTO($this->buscarItem($id));
     }
 

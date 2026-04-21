@@ -5,13 +5,14 @@ namespace App\Infra;
 use PDO;
 use Exception;
 
-function conectarAoDB(string $nomeDB) {
+function conectarAoDB(string $nomeDB): PDO {
     $caminhoEnv = __DIR__ . '/../../env.php';
     
     if (!file_exists($caminhoEnv)) {
         throw new Exception("Arquivo env.php não encontrado na raiz do projeto.");
     }
 
+    /** @var array{DB_HOST: string, DB_USER: string, DB_PASS: string} $env */
     $env = require $caminhoEnv;
 
     return new PDO(
@@ -24,5 +25,3 @@ function conectarAoDB(string $nomeDB) {
         ]
     );
 }
-
-?>

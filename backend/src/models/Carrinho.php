@@ -17,6 +17,7 @@ class Carrinho {
         return $this->totalGeral;
     }
 
+    /** @return list<ItemCarrinho> */
     public function getItens(): array {
         return array_values($this->itens);
     }
@@ -36,12 +37,11 @@ class Carrinho {
 
     public function atualizarQuantidade(int $itemId, int $quantidade): void {
         if (isset($this->itens[$itemId])) {
-            $itemExistente = $this->itens[$itemId];
-            $itemModel = $itemExistente->getItem();
+            $itemModel = $this->itens[$itemId]->getItem();
             
             $preco = $itemModel->getPrecoVenda();
             if ($itemModel->getPercentualDesconto() > 0) {
-                $preco = $preco - ($preco * ($itemModel->getPercentualDesconto() / 100));
+                $preco = $preco * (1 - ($itemModel->getPercentualDesconto() / 100));
             }
             $subtotal = $preco * $quantidade;
 
@@ -49,7 +49,7 @@ class Carrinho {
                 $this->id,
                 $itemModel,
                 $quantidade,
-                $subtotal
+                (float) $subtotal
             );
             $this->recalcularTotal();
         }
