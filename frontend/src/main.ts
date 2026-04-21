@@ -25,7 +25,7 @@ async function rotearApp() {
 
     } else if (path === '/detalhes') {
         await carregarPagina(appContainer, '/pages/detalhes.html');
-        const { DetalheItemViewEmDOM } = await import('./views/DetalheViewEmDOM');
+        const { DetalheItemViewEmDOM } = await import('./views/DetalheItemViewEmDOM');
         const visao = new DetalheItemViewEmDOM();
         
         const idItem = parseInt(params.get('id') || '0', 10);

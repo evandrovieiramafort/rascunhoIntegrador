@@ -79,4 +79,10 @@ export class CarrinhoService {
             console.error(error);
         }
     }
+
+    async obterQuantidadeItem(itemId: number): Promise<number> {
+    const carrinho = await this.obterCarrinho();
+    const itemNoCarrinho = carrinho.itens.find(ic => ic.item && ic.item.id === itemId);
+    return itemNoCarrinho ? itemNoCarrinho.quantidade : 0;
+    }
 }
