@@ -14,7 +14,6 @@ describe('RepositorioItemEmBDR', function () {
 
     describe('#contarTotalItems', function () {
         it('deve retornar o total de 12 itens cadastrados', function () {
-            /** @var mixed $total */
             $total = $this->repo->contarTotalItens();
             expect($total)->toBe(12);
         });

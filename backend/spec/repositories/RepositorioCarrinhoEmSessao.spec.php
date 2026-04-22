@@ -19,13 +19,14 @@ describe('RepositorioCarrinhoEmSessao', function () {
         $this->repo->salvarCarrinho($carrinho);
         
         $recuperado = $this->repo->ObterCarrinhoPorId($idSessao);
+        
         expect($recuperado)->toBeAnInstanceOf(Carrinho::class);
         expect($recuperado->getId())->toBe($idSessao);
     });
 
     it('deve retornar uma lista vazia ao obter itens de um carrinho inexistente', function () {
-        /** @var mixed $itens */
         $itens = $this->repo->ObterItensDoCarrinho('vazio');
+        
         expect($itens)->toBe([]);
     });
 });

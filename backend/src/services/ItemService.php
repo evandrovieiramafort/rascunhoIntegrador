@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Repositories\RepositorioItem;
 use App\Mappers\MapperItem;
-use App\Dto\PaginacaoDTO;
-use App\Dto\ItemDTO;
-use App\Exceptions\EntidadeNaoEncontradaException;
-use App\Exceptions\FalhaNaBuscaException;
+use App\Dto\{PaginacaoDTO, ItemDTO};
+use App\Exceptions\{EntidadeNaoEncontradaException, FalhaNaBuscaException};
 use App\Models\Item;
 
 class ItemService {
+    private const ITENS_POR_PAGINA = 6;
+
     public function __construct(
         private readonly RepositorioItem $repositorio
     ) {}
@@ -23,7 +23,7 @@ class ItemService {
         }
         
         $totalItens = $this->repositorio->contarTotalItens();
-        $totalPaginas = (int) ceil($totalItens / 6);
+        $totalPaginas = (int) ceil($totalItens / self::ITENS_POR_PAGINA);
 
         return new PaginacaoDTO(
             MapperItem::paraListaDTO($itensModel),

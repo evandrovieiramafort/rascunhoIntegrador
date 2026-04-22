@@ -2,15 +2,11 @@
 
 namespace App\Services;
 
-use App\Repositories\RepositorioCarrinho;
-use App\Repositories\RepositorioItem;
-use App\Models\Carrinho;
-use App\Models\ItemCarrinho;
-use App\Models\Item;
+use App\Repositories\{RepositorioCarrinho, RepositorioItem};
+use App\Models\{Carrinho, ItemCarrinho, Item};
 use App\Dto\CarrinhoDTO;
 use App\Mappers\MapperCarrinho;
-use App\Exceptions\EntidadeNaoEncontradaException;
-use App\Exceptions\EstoqueInsuficienteException;
+use App\Exceptions\{EntidadeNaoEncontradaException, EstoqueInsuficienteException};
 
 class CarrinhoService {
     public function __construct(
@@ -19,44 +15,24 @@ class CarrinhoService {
     ) {}
 
     public function obterCarrinho(string $sessaoId): CarrinhoDTO {
-        $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId) ?? new Carrinho($sessaoId);
-        return MapperCarrinho::paraDTO($carrinho);
+        return MapperCarrinho::paraDTO($this->obterOuCriarCarrinho($sessaoId));
     }
 
     public function adicionarItem(string $sessaoId, int $itemId, int $quantidade): CarrinhoDTO {
-        $itemModel = $this->repoItem->ObterPorId($itemId);
-        if (!$itemModel) {
-            throw new EntidadeNaoEncontradaException("Item", $itemId);
-        }
-
-        $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId) ?? new Carrinho($sessaoId);
+        $itemModel = $this->validarItem($itemId);
+        $carrinho = $this->obterOuCriarCarrinho($sessaoId);
         
-        $quantidadeNoCarrinho = 0;
-        foreach ($carrinho->getItens() as $ic) {
-            if ($ic->getItem()->getId() === $itemId) {
-                $quantidadeNoCarrinho = $ic->getQuantidade();
-                break;
-            }
-        }
-
+        $quantidadeNoCarrinho = $carrinho->getQuantidadeDoItem($itemId);
         $novaQuantidade = $quantidadeNoCarrinho + $quantidade;
+
         $this->validarRegraQuantidade($itemModel, $novaQuantidade);
-
-        $desconto = $itemModel->getPercentualDesconto() / 100;
-        $precoFinal = $itemModel->getPrecoVenda() * (1 - $desconto);
-        $subtotal = (float) ($precoFinal * $novaQuantidade);
-
-        $carrinho->adicionarItem(new ItemCarrinho($sessaoId, $itemModel, $quantidade, $subtotal));
+        $carrinho->adicionarItem(new ItemCarrinho($sessaoId, $itemModel, $quantidade, 0.0));
     
         return $this->salvarCarrinho($carrinho);
     }
 
     public function atualizarQuantidade(string $sessaoId, int $itemId, int $quantidade): CarrinhoDTO {
-        $itemModel = $this->repoItem->ObterPorId($itemId);
-        if (!$itemModel) {
-            throw new EntidadeNaoEncontradaException("Item", $itemId);
-        }
-
+        $itemModel = $this->validarItem($itemId);
         $carrinho = $this->buscarCarrinho($sessaoId);
         
         if ($quantidade <= 0) {
@@ -78,19 +54,25 @@ class CarrinhoService {
         return MapperCarrinho::paraDTO(new Carrinho($sessaoId));
     }
 
+    private function validarItem(int $itemId): Item {
+        $item = $this->repoItem->ObterPorId($itemId);
+        if (!$item) throw new EntidadeNaoEncontradaException("Item", $itemId);
+        return $item;
+    }
+
+    private function obterOuCriarCarrinho(string $sessaoId): Carrinho {
+        return $this->repoCarrinho->ObterCarrinhoPorId($sessaoId) ?? new Carrinho($sessaoId);
+    }
+
     private function buscarCarrinho(string $sessaoId): Carrinho {
         $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId);
-        if (!$carrinho) {
-            throw new EntidadeNaoEncontradaException("Carrinho", $sessaoId);
-        }
+        if (!$carrinho) throw new EntidadeNaoEncontradaException("Carrinho", $sessaoId);
         return $carrinho;
     }
 
     private function validarRegraQuantidade(Item $item, int $quantidadeFinal): void {
-        $estoqueDisponivel = $item->getQuantidadeEstoque();
-        $limitePermitido = min(10, $estoqueDisponivel);
-        
-        if ($quantidadeFinal > $limitePermitido) {
+        $limite = min(10, $item->getQuantidadeEstoque());
+        if ($quantidadeFinal > $limite) {
             throw new EstoqueInsuficienteException($item->getDescricao());
         }
     }

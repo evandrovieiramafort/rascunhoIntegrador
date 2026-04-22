@@ -1,6 +1,5 @@
 <?php
 
-require_once 'vendor/autoload.php';
 
 use phputil\router\{HttpRequest, HttpResponse, Router};
 use App\Services\ItemService;
