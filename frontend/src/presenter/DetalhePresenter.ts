@@ -1,13 +1,13 @@
-import { ItemService } from "../services/ItemService";
-import { CarrinhoService } from "../services/CarrinhoService";
-import type { DetalheItemView } from "../views/interfaces/DetalheItemView";
-import type { ItemDTO } from "../domain/ItemDTO";
+import { ItemService } from '../services/ItemService';
+import { CarrinhoService } from '../services/CarrinhoService';
+import type { DetalheItemViewInterface } from '../views/interfaces/DetalheItemViewInterface';
+import type { ItemDTO } from '../domain/ItemDTO';
 
-export class DetalheController {
+export class DetalhePresenter {
   private servicoItem: ItemService;
   private servicoCarrinho: CarrinhoService;
 
-  constructor(private visao: DetalheItemView) {
+  constructor(private visao: DetalheItemViewInterface) {
     this.servicoItem = new ItemService();
     this.servicoCarrinho = new CarrinhoService();
   }
@@ -23,10 +23,10 @@ export class DetalheController {
 
         this.visao.exibirDetalhes(item, qtdNoCarrinho);
       } else {
-        this.visao.exibirErro("Produto não encontrado.");
+        this.visao.exibirErro('Produto não encontrado.');
       }
     } catch {
-      this.visao.exibirErro("Falha ao carregar detalhes.");
+      this.visao.exibirErro('Falha ao carregar detalhes.');
     }
   }
 
@@ -38,11 +38,11 @@ export class DetalheController {
       this.visao.notificarSucessoAdicao();
 
       setTimeout(() => {
-        window.history.pushState({}, "", "/");
-        window.dispatchEvent(new PopStateEvent("popstate"));
+        window.history.pushState({}, '', '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
       }, 800);
     } catch (erro: any) {
-      this.visao.notificarErroAdicao(erro.message || "Erro ao adicionar.");
+      this.visao.notificarErroAdicao(erro.message || 'Erro ao adicionar.');
     }
   }
 }

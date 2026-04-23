@@ -35,24 +35,11 @@ export class CarrinhoService {
         });
     }
 
-    private activeController: AbortController | null = null;
-
     async atualizarQuantidade(itemId: number, quantidade: number): Promise<CarrinhoDTO> {
-        if (this.activeController) {
-            this.activeController.abort();
-        }
-        
-        this.activeController = new AbortController();
-
-        try {
-            return await this.fetchAPI(`/carrinho/item/${itemId}`, {
-                method: 'PUT',
-                signal: this.activeController.signal,
-                body: JSON.stringify({ quantidade: quantidade })
-            });
-        } finally {
-            this.activeController = null;
-        }
+        return await this.fetchAPI(`/carrinho/item/${itemId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ quantidade: quantidade })
+        });
     }
 
     async removerItem(itemId: number): Promise<CarrinhoDTO> {

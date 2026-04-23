@@ -1,20 +1,28 @@
-import { navegarPara } from '../utils/Navagacao';
-import { DetalheController } from '../controllers/DetalheController';
+import { navegarPara } from '../utils/Navegacao';
+import { DetalhePresenter } from '../presenter/DetalhePresenter';
 import { obterHTML, limparFilhos } from '../utils/UtilDOM';
 import { SecaoDetalhe } from '../components/detalhes/SecaoDetalhe';
 import { Spinner, Alerta } from '../components/ui/UIComponents';
 import type { ItemDTO } from '../domain/ItemDTO';
-import type { DetalheItemView } from './interfaces/DetalheItemView';
+import type { DetalheItemViewInterface } from './interfaces/DetalheItemViewInterface';
 
-export class DetalheItemView implements DetalheItemView {
-  private controladora: DetalheController;
+export class DetalheItemView implements DetalheItemViewInterface {
+  private apresentadora: DetalhePresenter;
 
   constructor() {
-    this.controladora = new DetalheController(this);
+    this.apresentadora = new DetalhePresenter(this);
   }
 
   async iniciar(idItem: number): Promise<void> {
-    await this.controladora.carregarDetalhes(idItem);
+    await this.apresentadora.carregarDetalhes(idItem);
+    this.configurarEventosEstaticos();
+  }
+
+  private configurarEventosEstaticos(): void {
+    const btnVoltar = document.querySelector('#btn-voltar-loja') as HTMLButtonElement;
+    if (btnVoltar) {
+      btnVoltar.onclick = () => window.history.back();
+    }
   }
 
   public exibirDetalhes(item: ItemDTO, quantidadeNoCarrinho: number): void {
@@ -24,8 +32,8 @@ export class DetalheItemView implements DetalheItemView {
     const componente = SecaoDetalhe(
       item,
       quantidadeNoCarrinho,
-      (qtd) => this.controladora.adicionarAoCarrinho(item, qtd),
-      () => this.navegarPara('/carrinho'),
+      (qtd) => this.apresentadora.adicionarAoCarrinho(item, qtd),
+      () => navegarPara('/carrinho'),
     );
 
     container.appendChild(componente);

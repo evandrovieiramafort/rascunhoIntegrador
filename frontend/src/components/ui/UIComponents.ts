@@ -39,11 +39,17 @@ export function PrecoArea(precoVenda: number | string, precoFinal: number, perce
   return div;
 }
 
-export function Stepper(valorInicial: number, maximo: number, largura: string = "140px", aoMudar?: (novoValor: number) => void): HTMLElement {
+export function Stepper(
+  valorInicial: number, 
+  maximo: number, 
+  largura: string = "140px", 
+  aoMudar?: (novoValor: number) => Promise<void> 
+): HTMLElement {
+  
   const elemento = htmlParaElemento(`
     <div class="input-group shadow-sm" style="width: ${largura};">
       <button class="btn btn-outline-secondary px-3" data-btn="menos">-</button>
-      <input type="text" class="form-control text-center fw-bold bg-white" readonly>
+      <input type="text" class="form-control text-center fw-bold bg-white" readonly value="${valorInicial}">
       <button class="btn btn-outline-secondary px-3" data-btn="mais">+</button>
     </div>
   `);
@@ -52,23 +58,29 @@ export function Stepper(valorInicial: number, maximo: number, largura: string = 
   const btnMenos = elemento.querySelector('[data-btn="menos"]') as HTMLButtonElement;
   const btnMais = elemento.querySelector('[data-btn="mais"]') as HTMLButtonElement;
 
-  inputQtd.value = valorInicial.toString();
-
-  btnMenos.onclick = () => {
+  const alterarQuantidade = async (delta: number) => {
     const atual = parseInt(inputQtd.value);
-    if (atual > 1) {
-      inputQtd.value = (atual - 1).toString();
-      if (aoMudar) aoMudar(atual - 1);
+    const novoValor = atual + delta;
+
+    if (novoValor >= 1 && novoValor <= maximo) {
+      inputQtd.value = novoValor.toString();
+
+      btnMenos.disabled = true;
+      btnMais.disabled = true;
+
+      try {
+        if (aoMudar) {
+          await aoMudar(novoValor); 
+        }
+      } finally {
+        btnMenos.disabled = false;
+        btnMais.disabled = false;
+      }
     }
   };
 
-  btnMais.onclick = () => {
-    const atual = parseInt(inputQtd.value);
-    if (atual < maximo) {
-      inputQtd.value = (atual + 1).toString();
-      if (aoMudar) aoMudar(atual + 1);
-    }
-  };
+  btnMenos.onclick = () => alterarQuantidade(-1);
+  btnMais.onclick = () => alterarQuantidade(1);
 
   return elemento;
 }

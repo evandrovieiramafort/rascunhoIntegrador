@@ -5,7 +5,7 @@ import type { ItemCarrinhoDTO } from "../../domain/ItemCarrinhoDTO";
 
 export function LinhaCarrinho(
   ic: ItemCarrinhoDTO, 
-  aoMudarQtd: (id: number, novaQtd: number) => void, 
+  aoMudarQtd: (id: number, novaQtd: number) => Promise<void>, 
   aoRemover: (id: number) => void
 ): HTMLElement {
   if (!ic.item) return htmlParaElemento(`<tr></tr>`);

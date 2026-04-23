@@ -1,6 +1,6 @@
 import type { ItemDTO } from "../../domain/ItemDTO";
 
-export interface DetalheItemView {
+export interface DetalheItemViewInterface {
     exibirCarregamento(): void;
     exibirErro(mensagem: string): void;
     notificarSucessoAdicao(): void;

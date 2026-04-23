@@ -1,33 +1,25 @@
-import { CarrinhoController } from '../controllers/CarrinhoController';
+import { CarrinhoPresenter } from '../presenter/CarrinhoPresenter';
 import { obterHTML, limparFilhos, htmlParaElemento } from '../utils/UtilDOM';
 import { LinhaCarrinho } from '../components/carrinho/LinhaCarrinho';
 import { TabelaCarrinhoBase } from '../components/carrinho/TabelaCarrinho';
 import { Spinner, Alerta } from '../components/ui/UIComponents';
 import type { CarrinhoDTO } from '../domain/CarrinhoDTO';
-import type { CarrinhoView } from './interfaces/CarrinhoView';
+import type { CarrinhoViewInterface } from './interfaces/CarrinhoViewInterface';
 
-export class CarrinhoView implements CarrinhoView {
-  private controladora: CarrinhoController;
+export class CarrinhoView implements CarrinhoViewInterface {
+  private apresentadora: CarrinhoPresenter;
 
   constructor() {
-    this.controladora = new CarrinhoController(this);
+    this.apresentadora = new CarrinhoPresenter(this);
   }
 
   async iniciar(): Promise<void> {
-    await this.controladora.carregarCarrinho();
+    await this.apresentadora.carregarCarrinho();
   }
 
   public exibirCarrinho(carrinho: CarrinhoDTO): void {
-    const container = obterHTML('#carrinho-container');
+    const container = obterHTML('#carrinho-conteudo');
     limparFilhos(container);
-
-    const feedback = htmlParaElemento(
-      `<div id="feedback-operacao-carrinho"></div>`,
-    );
-    container.appendChild(feedback);
-
-    const titulo = htmlParaElemento(`<h2 class="mb-4">Meu Carrinho</h2>`);
-    container.appendChild(titulo);
 
     if (carrinho.itens.length === 0) {
       container.appendChild(
@@ -44,8 +36,8 @@ export class CarrinhoView implements CarrinhoView {
     [...carrinho.itens].reverse().forEach((ic) => {
       const linha = LinhaCarrinho(
         ic,
-        (id, novaQtd) => this.controladora.atualizarQuantidade(id, novaQtd),
-        (id) => this.controladora.removerItem(id),
+        (id, novaQtd) => this.apresentadora.atualizarQuantidade(id, novaQtd),
+        (id) => this.apresentadora.removerItem(id),
       );
       tbody.appendChild(linha);
     });
@@ -67,13 +59,13 @@ export class CarrinhoView implements CarrinhoView {
   }
 
   public exibirCarregamento(): void {
-    const c = obterHTML('#carrinho-container');
+    const c = obterHTML('#carrinho-conteudo');
     limparFilhos(c);
     c.appendChild(Spinner());
   }
 
   public exibirErro(msg: string): void {
-    const c = obterHTML('#carrinho-container');
+    const c = obterHTML('#carrinho-conteudo');
     limparFilhos(c);
     c.appendChild(Alerta(msg));
   }

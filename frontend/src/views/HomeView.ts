@@ -1,21 +1,21 @@
 import { navegarPara } from '../utils/Navegacao';
 import { obterHTML, limparFilhos } from '../utils/UtilDOM';
-import { HomeController } from '../controllers/HomeController';
+import { HomePresenter } from '../presenter/HomePresenter';
 import { CardProduto } from '../components/home/CardProduto';
 import { PaginacaoItem } from '../components/home/PaginacaoItem';
 import { Spinner, Alerta } from '../components/ui/UIComponents';
 import type { ItemDTO } from '../domain/ItemDTO';
-import type { HomeView } from './interfaces/HomeView';
+import type { HomeViewInterface } from './interfaces/HomeViewInterface';
 
-export class HomeView implements HomeView {
-  private controladora: HomeController;
+export class HomeView implements HomeViewInterface {
+  private apresentadora: HomePresenter;
 
   constructor() {
-    this.controladora = new HomeController(this);
+    this.apresentadora = new HomePresenter(this);
   }
 
   async iniciar(paginaAtual: number = 1): Promise<void> {
-    await this.controladora.carregarProdutos(paginaAtual);
+    await this.apresentadora.carregarProdutos(paginaAtual);
   }
 
   public exibirItens(itens: ItemDTO[]): void {
@@ -24,7 +24,7 @@ export class HomeView implements HomeView {
 
     itens.forEach((item) => {
       divItens.appendChild(
-        CardProduto(item, (id) => this.navegarPara(`/detalhes?id=${id}`)),
+        CardProduto(item, (id) => navegarPara(`/detalhes?id=${id}`)),
       );
     });
   }
