@@ -39,7 +39,7 @@ async function rotearApp() {
 
     await visao.iniciar();
   } else {
-    const { Pagina404 } = await import('./components/404/Pagina404');
+    const { Pagina404 } = await import('./components/404/404');
     const { limparFilhos } = await import('./utils/UtilDOM');
     
     limparFilhos(appContainer);
