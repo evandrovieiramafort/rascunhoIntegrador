@@ -1,15 +1,15 @@
+export function obterHTML(seletor: string): HTMLElement {
+  const elemento = document.querySelector(seletor);
+  if (!elemento) throw new Error(`Elemento não encontrado: ${seletor}`);
+  return elemento as HTMLElement;
+}
+
 export function limparFilhos(elemento: HTMLElement): void {
-    while (elemento.firstChild) {
-        elemento.removeChild(elemento.firstChild);
-    }
+  elemento.replaceChildren();
 }
 
-export function obterHTML<T extends HTMLElement>(query: string): T {
-    const elemento = document.querySelector<T>(query);
-    if (!elemento) throw new Error(`Elemento não encontrado: ${query}`);
-    return elemento;
-}
-
-export function criarHTML<K extends keyof HTMLElementTagNameMap>(tag: K): HTMLElementTagNameMap[K] {
-    return document.createElement(tag);
+export function htmlParaElemento(html: string): HTMLElement {
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.firstElementChild as HTMLElement;
 }

@@ -1,64 +1,64 @@
+import { API_URL } from "../infra/conf";
 import type { CarrinhoDTO } from "../domain/CarrinhoDTO";
-import type { ItemCarrinhoDTO } from "../domain/ItemCarrinhoDTO";
 import type { ItemDTO } from "../domain/ItemDTO";
 
 export class CarrinhoService {
-    private readonly STORAGE_KEY = 'cefet_shop_cart';
+    
+    private async fetchAPI(endpoint: string, options: RequestInit = {}): Promise<CarrinhoDTO> {
+        const config: RequestInit = {
+            ...options,
+            credentials: 'include', // Envia o cookie de sessão do PHP
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            },
+        };
+
+        const response = await fetch(`${API_URL}${endpoint}`, config);
+        
+        if (!response.ok) {
+            const erro = await response.json().catch(() => ({ mensagem: 'Erro desconhecido no servidor.' }));
+            throw new Error(erro.mensagem || `Falha na requisição: ${response.status}`);
+        }
+
+        return await response.json();
+    }
 
     async obterCarrinho(): Promise<CarrinhoDTO> {
-        const dados = localStorage.getItem(this.STORAGE_KEY);
-        const itens: ItemCarrinhoDTO[] = dados ? JSON.parse(dados) : [];
-        const totalGeral = itens.reduce((acc, curr) => acc + (curr.subtotal || 0), 0);
-        
-        return {
-            id: "1",
-            itens,
-            totalGeral
-        };
+        return this.fetchAPI('/carrinho');
     }
 
     async adicionarItem(item: ItemDTO, quantidade: number): Promise<CarrinhoDTO> {
-        const carrinho = await this.obterCarrinho();
-        const index = carrinho.itens.findIndex(ic => ic.item && ic.item.id === item.id);
-
-        if (index !== -1) {
-            carrinho.itens[index].quantidade += quantidade;
-            carrinho.itens[index].subtotal = carrinho.itens[index].quantidade * item.precoFinal;
-        } else {
-            carrinho.itens.push({
-                item: item,
-                quantidade: quantidade,
-                subtotal: item.precoFinal * quantidade
-            });
-        }
-
-        this.salvar(carrinho.itens);
-        return this.obterCarrinho();
+        return this.fetchAPI('/carrinho/item', {
+            method: 'POST',
+            body: JSON.stringify({ item_id: item.id, quantidade: quantidade })
+        });
     }
 
+    private activeController: AbortController | null = null;
+
     async atualizarQuantidade(itemId: number, quantidade: number): Promise<CarrinhoDTO> {
-        const carrinho = await this.obterCarrinho();
-        const itemCarrinho = carrinho.itens.find(ic => ic.item && ic.item.id === itemId);
-
-        if (itemCarrinho) {
-            itemCarrinho.quantidade = quantidade;
-            itemCarrinho.subtotal = quantidade * itemCarrinho.item.precoFinal;
-            this.salvar(carrinho.itens);
+        if (this.activeController) {
+            this.activeController.abort();
         }
+        
+        this.activeController = new AbortController();
 
-        return this.obterCarrinho();
+        try {
+            return await this.fetchAPI(`/carrinho/item/${itemId}`, {
+                method: 'PUT',
+                signal: this.activeController.signal,
+                body: JSON.stringify({ quantidade: quantidade })
+            });
+        } finally {
+            this.activeController = null;
+        }
     }
 
     async removerItem(itemId: number): Promise<CarrinhoDTO> {
-        const carrinho = await this.obterCarrinho();
-        const novosItens = carrinho.itens.filter(ic => ic.item && ic.item.id !== itemId);
-        
-        this.salvar(novosItens);
-        return this.obterCarrinho();
-    }
-
-    private salvar(itens: ItemCarrinhoDTO[]): void {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(itens));
+        return this.fetchAPI(`/carrinho/item/${itemId}`, {
+            method: 'DELETE'
+        });
     }
 
     async atualizarBadgeNav(): Promise<void> {
@@ -76,13 +76,17 @@ export class CarrinhoService {
                 }
             }
         } catch (error) {
-            console.error(error);
+            console.error("Erro ao atualizar badge do carrinho:", error);
         }
     }
 
     async obterQuantidadeItem(itemId: number): Promise<number> {
-    const carrinho = await this.obterCarrinho();
-    const itemNoCarrinho = carrinho.itens.find(ic => ic.item && ic.item.id === itemId);
-    return itemNoCarrinho ? itemNoCarrinho.quantidade : 0;
+        try {
+            const carrinho = await this.obterCarrinho();
+            const itemNoCarrinho = carrinho.itens.find(ic => ic.item && ic.item.id === itemId);
+            return itemNoCarrinho ? itemNoCarrinho.quantidade : 0;
+        } catch {
+            return 0;
+        }
     }
 }

@@ -17,9 +17,6 @@ class Carrinho {
         return array_values($this->itens);
     }
 
-    /**
-     * Retorna a quantidade de um item específico no carrinho
-     */
     public function getQuantidadeDoItem(int $itemId): int {
         return isset($this->itens[$itemId]) ? $this->itens[$itemId]->getQuantidade() : 0;
     }
@@ -31,7 +28,6 @@ class Carrinho {
             $novaQuantidade = $this->itens[$itemId]->getQuantidade() + $novoItem->getQuantidade();
             $this->atualizarQuantidade($itemId, $novaQuantidade);
         } else {
-            // Garante que o subtotal esteja correto mesmo para itens novos
             $this->itens[$itemId] = $this->garantirSubtotalCorreto($novoItem);
             $this->recalcularTotal();
         }
