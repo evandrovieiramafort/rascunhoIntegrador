@@ -16,17 +16,11 @@ export class DetalhePresenter {
     this.visao.exibirCarregamento();
     try {
       const item = await this.servicoItem.obterPorId(id);
-
-      if (item) {
-        const qtdNoCarrinho =
-          await this.servicoCarrinho.obterQuantidadeItem(id);
-
-        this.visao.exibirDetalhes(item, qtdNoCarrinho);
-      } else {
-        this.visao.exibirErro('Produto não encontrado.');
-      }
-    } catch {
-      this.visao.exibirErro('Falha ao carregar detalhes.');
+      const qtdNoCarrinho = await this.servicoCarrinho.obterQuantidadeItem(id);
+      this.visao.exibirDetalhes(item, qtdNoCarrinho);
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : "Falha ao carregar detalhes";
+      this.visao.exibirErro(mensagem);
     }
   }
 
@@ -34,15 +28,15 @@ export class DetalhePresenter {
     try {
       await this.servicoCarrinho.adicionarItem(item, quantidade);
       await this.servicoCarrinho.atualizarBadgeNav();
-
       this.visao.notificarSucessoAdicao();
 
       setTimeout(() => {
         window.history.pushState({}, '', '/');
         window.dispatchEvent(new PopStateEvent('popstate'));
       }, 800);
-    } catch (erro: any) {
-      this.visao.notificarErroAdicao(erro.message || 'Erro ao adicionar.');
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : "Falha ao adicionar item ao carrinho";
+      this.visao.notificarErroAdicao(mensagem);
     }
   }
 }

@@ -2,5 +2,7 @@
 
 namespace App\Exceptions;
 
-class RepositorioException extends DominioException {}
+use RuntimeException;
+
+class RepositorioException extends RuntimeException {}
 ?>

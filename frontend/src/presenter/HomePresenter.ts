@@ -15,9 +15,8 @@ export class HomePresenter {
       this.visao.exibirItens(dados.itens);
       this.visao.exibirPaginacao(dados.paginaAtual, dados.totalPaginas);
     } catch (erro) {
-      this.visao.exibirErro(
-        'Não foi possível carregar os produtos do servidor.',
-      );
+      const mensagem = erro instanceof Error ? erro.message : "Não foi possível carregar os produtos do servidor";
+      this.visao.exibirErro(mensagem);
     }
   }
 }

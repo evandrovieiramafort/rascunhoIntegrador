@@ -14,24 +14,21 @@ export class CarrinhoPresenter {
       const carrinho = await this.servico.obterCarrinho();
       this.visao.exibirCarrinho(carrinho);
       await this.servico.atualizarBadgeNav();
-    } catch {
-      this.visao.exibirErro('Falha ao carregar o carrinho.');
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : 'Falha ao carregar o carrinho.';
+      this.visao.exibirErro(mensagem);
     }
   }
 
   async atualizarQuantidade(itemId: number, quantidade: number): Promise<void> {
     try {
-      const carrinho = await this.servico.atualizarQuantidade(
-        itemId,
-        quantidade
-      );
+      const carrinho = await this.servico.atualizarQuantidade(itemId, quantidade);
       this.visao.exibirCarrinho(carrinho);
       await this.servico.atualizarBadgeNav();
-    } catch (erro: any) {
-      if (!(erro.name === 'AbortError')) {
-        this.visao.exibirMensagemFeedback(
-          'Erro ao atualizar quantidade de produtos.',
-        );
+    } catch (erro) {
+      if (erro instanceof Error && erro.name !== 'AbortError') {
+        this.visao.exibirMensagemFeedback(erro.message);
+        await this.carregarCarrinho();
       }
     }
   }
@@ -41,8 +38,9 @@ export class CarrinhoPresenter {
       const carrinho = await this.servico.removerItem(itemId);
       this.visao.exibirCarrinho(carrinho);
       await this.servico.atualizarBadgeNav();
-    } catch {
-      this.visao.exibirErro('Não foi possível remover o item do carrinho.');
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : 'Não foi possível remover o item.';
+      this.visao.exibirMensagemFeedback(mensagem);
     }
   }
 }

@@ -4,13 +4,13 @@ import type { ItemDTO } from "../domain/ItemDTO";
 
 export class CarrinhoService {
     
-    private async fetchAPI(endpoint: string, options: RequestInit = {}): Promise<CarrinhoDTO> {
+    private async fetchAPI(endpoint: string, opcoes: RequestInit = {}): Promise<CarrinhoDTO> {
         const config: RequestInit = {
-            ...options,
+            ...opcoes,
             credentials: 'include', // Envia o cookie de sessão do PHP
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
+                ...opcoes.headers,
             },
         };
 

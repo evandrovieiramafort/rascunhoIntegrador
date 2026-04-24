@@ -6,6 +6,8 @@ use App\Services\CarrinhoService;
 use App\Repositories\RepositorioCarrinhoEmSessao;
 use App\Repositories\RepositorioItemEmBDR;
 use App\Exceptions\DominioException;
+use App\Exceptions\RepositorioException;
+use App\Exceptions\EntidadeNaoEncontradaException;
 
 return function (Router $app, \PDO $pdo): void {
     $repoSessao = new RepositorioCarrinhoEmSessao();
@@ -16,7 +18,9 @@ return function (Router $app, \PDO $pdo): void {
         try {
             $resultado = $servico->obterCarrinho((string) session_id());
             $res->status(200)->json($resultado);
-        } catch (\Exception $e) {
+        } catch (RepositorioException $e) {
+            $res->status(500)->json(["mensagem" => "Erro ao recuperar dados da sessão."]);
+        } catch (\Throwable $e) {
             $res->status(500)->json(['mensagem' => $e->getMessage()]);
         }
     });
@@ -30,10 +34,14 @@ return function (Router $app, \PDO $pdo): void {
 
             $resultado = $servico->adicionarItem((string) session_id(), $itemId, $quantidade);
             $res->status(200)->json($resultado);
+        } catch (EntidadeNaoEncontradaException $e) {
+            $res->status(404)->json(['mensagem' => $e->getMessage()]);
         } catch (DominioException $e) {
             $res->status(400)->json(['mensagem' => $e->getMessage()]);
-        } catch (\Exception $e) {
-            $res->status(500)->json(['mensagem' => $e->getMessage()]);
+        } catch (RepositorioException $e) {
+            $res->status(500)->json(['mensagem' => 'Erro ao salvar item no carrinho.']);
+        } catch (\Throwable $e) {
+            $res->status(500)->json(['mensagem' => 'Erro inesperado no servidor.']);
         }
     });
 
@@ -46,10 +54,14 @@ return function (Router $app, \PDO $pdo): void {
 
             $resultado = $servico->atualizarQuantidade((string) session_id(), $itemId, $quantidade);
             $res->status(200)->json($resultado);
+        } catch (EntidadeNaoEncontradaException $e) {
+            $res->status(404)->json(['mensagem' => $e->getMessage()]);
         } catch (DominioException $e) {
             $res->status(400)->json(['mensagem' => $e->getMessage()]);
-        } catch (\Exception $e) {
-            $res->status(500)->json(['mensagem' => $e->getMessage()]);
+        } catch (RepositorioException $e) {
+            $res->status(500)->json(['mensagem' => 'Erro ao atualizar quantidade.']);
+        } catch (\Throwable $e) {
+            $res->status(500)->json(['mensagem' => 'Erro inesperado no servidor.']);
         }
     });
 
@@ -58,10 +70,10 @@ return function (Router $app, \PDO $pdo): void {
             $itemId = (int) $req->param('id');
             $resultado = $servico->removerItem((string) session_id(), $itemId);
             $res->status(200)->json($resultado);
-        } catch (DominioException $e) {
-            $res->status(400)->json(['mensagem' => $e->getMessage()]);
-        } catch (\Exception $e) {
-            $res->status(500)->json(['mensagem' => $e->getMessage()]);
+        } catch (RepositorioException $e) {
+            $res->status(500)->json(['mensagem' => 'Erro ao remover item do carrinho.']);
+        } catch (\Throwable $e) {
+            $res->status(500)->json(['mensagem' => 'Erro inesperado no servidor.']);
         }
     });
 };

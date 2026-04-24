@@ -6,7 +6,7 @@ use App\Repositories\{RepositorioCarrinho, RepositorioItem};
 use App\Models\{Carrinho, ItemCarrinho, Item};
 use App\Dto\CarrinhoDTO;
 use App\Mappers\MapperCarrinho;
-use App\Exceptions\{EntidadeNaoEncontradaException, EstoqueInsuficienteException};
+use App\Exceptions\{DominioException, EntidadeNaoEncontradaException, EstoqueInsuficienteException};
 
 class CarrinhoService {
     public function __construct(
@@ -74,6 +74,9 @@ class CarrinhoService {
         $limite = min(10, $item->getQuantidadeEstoque());
         if ($quantidadeFinal > $limite) {
             throw new EstoqueInsuficienteException($item->getDescricao());
+        }
+        if ($quantidadeFinal <= 0) {
+            throw new DominioException("A quantidade deve ser maior do que zero");
         }
     }
 
