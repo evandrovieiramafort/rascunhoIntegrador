@@ -7,7 +7,7 @@ use App\Test\SpecHelper;
 
 describe('ItemService', function () {
     beforeAll(function () {
-        $this->pdo = SpecHelper::resetarBancoDeDados();
+        $this->pdo = SpecHelper::prepararBancoDeDados();
         $this->repo = new RepositorioItemEmBDR($this->pdo);
         $this->servico = new ItemService($this->repo);
     });
