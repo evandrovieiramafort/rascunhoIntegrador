@@ -47,3 +47,7 @@ VALUES (@cat_frio, '/src/assets/img/moletom cinza.png', 'Moletom Cinza Mescla', 
 
 INSERT INTO item (categoria_id, foto, descricao, descricao_detalhada, periodo_lancamento, preco_venda, percentual_desconto, quantidade_estoque, total_vendas) 
 VALUES (@cat_frio, '/src/assets/img/moletom preto.png', 'Moletom Preto Minimalista', 'Moletom preto básico com logo bordado.', '2026-1', 135.00, 0.00, 0, 5);
+
+
+INSERT INTO item (categoria_id, foto, descricao, descricao_detalhada, periodo_lancamento, preco_venda, percentual_desconto, quantidade_estoque, total_vendas) 
+VALUES (@cat_canecas, '/src/assets/img/caneca.png', 'Caneca BSI Premium', 'Edição limitada que voou das prateleiras.', '2026-1', 50.00, 20.00, 0, 150);

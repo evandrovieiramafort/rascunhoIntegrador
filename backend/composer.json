@@ -1,50 +1,47 @@
 {
-    "name": "evandro-lucas/cefet-shop",
-    "description": "Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas",
-    "type": "project",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Evandro Vieira Mafort",
-            "email": "evandro.mafort@aluno.cefet-rj.br"
-        },
-        {
-            "name": "Lucas Pinheiro Machado",
-            "email": "lucas.machado@aluno.cefet-rj.br"
-        }
-    ],
-    "require": {
-        "phputil/router": "^0.3.6",
-        "phputil/cors": "^0.5.3"
+  "name": "evandro-lucas/cefet-shop",
+  "description": "Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Evandro Vieira Mafort",
+      "email": "evandro.mafort@aluno.cefet-rj.br"
     },
-    "autoload": {
-        "psr-4": {
-            "App\\": "src/"
-        },
-        "files": [
-            "env.php",
-            "src/Infra/ConexaoDB.php"
-        ]
-    },
-    "require-dev": {
-        "phpstan/phpstan": "^2.1",
-        "kahlan/kahlan": "^6.1"
-    },
-    
-    "scripts": {
-        "api": [ 
-            "Composer\\Config::disableProcessTimeout", 
-            "php -S localhost:8000" 
-        ],
-        "test": "kahlan analyze --reporter=verbose",
-        "check": "phpstan analyze src --level=10",
-        "db:test": "mysql -u root --password=\"\" cefetshop_bd_test < src/sql/cefetshop_bd_test.sql && mysql -u root --password=\"\" cefetshop_bd_test < src/sql/script_populacao_test.sql",
-        "db:setup:prd": [
-            "@php -r \"echo '===========================================================\n';\"",
-            "@php -r \"echo 'Use ESTE COMANDO APENAS se for o PRIMEIRO SETUP na máquina.\n';\"",
-            "@php -r \"echo '===========================================================\n';\"",
-            "mysql -u seu_usuario -p < src/sql/cefetshop_bd_prd.sql",
-            "mysql -u seu_usuario -p < src/sql/script_populacao_prd.sql"
-        ]
+    {
+      "name": "Lucas Pinheiro Machado",
+      "email": "lucas.machado@aluno.cefet-rj.br"
     }
+  ],
+  "require": {
+    "phputil/router": "^0.3.6",
+    "phputil/cors": "^0.5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    },
+    "files": [
+      "env.php",
+      "src/Infra/ConexaoDB.php"
+    ]
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "kahlan/kahlan": "^6.1"
+  },
+  "scripts": {
+    "api": [
+      "Composer\\Config::disableProcessTimeout",
+      "php -S localhost:8000"
+    ],
+    "test": "kahlan analyze --reporter=verbose",
+    "check": "phpstan analyze src --level=10",
+    "db:test": [
+      "@php db-setup.php test"
+    ],
+    "db:prd": [
+      "@php db-setup.php prd"
+    ]
+  }
 }
