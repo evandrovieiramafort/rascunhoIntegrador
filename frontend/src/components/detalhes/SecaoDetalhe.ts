@@ -1,5 +1,5 @@
 import { htmlParaElemento } from "../../utils/UtilDOM";
-import { PrecoArea, Stepper } from "../ui/UIComponents";
+import { PrecoArea, SeletorQuantidade } from "../ui/UIComponents"; 
 import type { ItemDTO } from "../../domain/ItemDTO";
 
 export function SecaoDetalhe(
@@ -41,9 +41,7 @@ export function SecaoDetalhe(
   container.querySelector("[data-area-preco]")!.appendChild(PrecoArea(item.precoVenda, item.precoFinal, item.percentualDesconto));
 
   const areaAcoes = container.querySelector("[data-area-acoes]")!;
-  
   const limiteAbsoluto = Math.min(10, item.quantidadeEstoque);
-  
   const disponivelParaAdicionar = limiteAbsoluto - quantidadeNoCarrinho;
 
   if (disponivelParaAdicionar <= 0) {
@@ -53,12 +51,12 @@ export function SecaoDetalhe(
   } else {
     areaAcoes.appendChild(htmlParaElemento(`<label class="form-label fw-bold d-block mb-2">Quantidade:</label>`));
 
-    const stepperDom = Stepper(1, disponivelParaAdicionar, "160px");
-    areaAcoes.appendChild(stepperDom);
+    const seletorDom = SeletorQuantidade(1, disponivelParaAdicionar, "100px");
+    areaAcoes.appendChild(seletorDom);
 
     const btnAdd = htmlParaElemento(`<button id="btn-adicionar" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm mb-3 mt-3">Adicionar ao Carrinho</button>`);
     btnAdd.onclick = () => {
-      const inputVal = (stepperDom.querySelector("input") as HTMLInputElement).value;
+      const inputVal = (seletorDom as HTMLSelectElement).value;
       aoAdicionar(parseInt(inputVal));
     };
     areaAcoes.appendChild(btnAdd);

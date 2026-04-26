@@ -25,9 +25,9 @@ export class DetalhePresenter {
     }
   }
 
-  async adicionarAoCarrinho(item: ItemDTO, quantidade: number): Promise<void> {
+  async adicionarAoCarrinho(itemId: number, quantidade: number): Promise<void> {
     try {
-      await this.servicoCarrinho.adicionarItem(item, quantidade);
+      await this.servicoCarrinho.adicionarItem(itemId, quantidade);
       await this.servicoCarrinho.atualizarBadgeNav();
       this.visao.notificarSucessoAdicao();
 

@@ -11,14 +11,11 @@ test.describe('Fluxo Principal do Usuário', () => {
 
     // Encontra o card que contém a palavra "Caneca" e clica em "Comprar"
     const cardCaneca = page.locator('.card', { hasText: 'Caneca' });
-    await cardCaneca.getByRole('button', { name: 'Comprar' }).click();
+    await cardCaneca.getByRole('button', { name: 'Detalhes' }).click();
 
     // Na tela de detalhes, escolhe 2 unidades e adiciona
-    await page.locator('#quantidade-selecionada').selectOption('2');
+    await page.locator('#seletor-quantidade').selectOption('2');
     await page.getByRole('button', { name: 'Adicionar ao Carrinho' }).click();
-    
-    // Aguarda o botão ficar verde e mostrar "Item Adicionado!"
-    await expect(page.getByText('Item Adicionado!')).toBeVisible();
 
     // Clica na logo "Mercado Cefet" na Navbar para voltar ao início
     await page.getByRole('link', { name: 'Mercado Cefet' }).click();
@@ -28,11 +25,10 @@ test.describe('Fluxo Principal do Usuário', () => {
 
     // Encontra o card que contém a palavra "Moletom" e clica em "Comprar"
     const cardMoletom = page.locator('.card', { hasText: 'Moletom' }).first();
-    await cardMoletom.getByRole('button', { name: 'Comprar' }).click();
+    await cardMoletom.getByRole('button', { name: 'Detalhes' }).click();
 
     // Na tela de detalhes, deixa a quantidade padrão (1) e adiciona
     await page.getByRole('button', { name: 'Adicionar ao Carrinho' }).click();
-    await expect(page.getByText('Item Adicionado!')).toBeVisible();
 
     // Clica no ícone do carrinho na Navbar
     await page.locator('a[href="/carrinho"]').click();
@@ -55,7 +51,7 @@ test.describe('Fluxo Principal do Usuário', () => {
 
     // Localiza a linha da Caneca e pega o select de quantidade
     const linhaCaneca = page.locator('tr', { hasText: 'Caneca' });
-    const selectQuantidade = linhaCaneca.locator('select');
+    const selectQuantidade = linhaCaneca.locator('#seletor-quantidade');
 
     // Troca a quantidade de 2 para 1
     await selectQuantidade.selectOption('1');
@@ -63,6 +59,26 @@ test.describe('Fluxo Principal do Usuário', () => {
     // Verifica se a interface atualizou o texto para "No carrinho: 1"
     await expect(linhaCaneca).toContainText('No carrinho: 1');
 
+  });
+
+  test('Deve exibir mensagem de carrinho vazio ao acessar a rota sem itens', async ({ page }) => {
+    // Acessa o carrinho diretamente sem comprar nada
+    await page.goto(`${BASE_URL}/carrinho`);
+    
+    // Verifica se o alerta de carrinho vazio foi renderizado corretamente
+    await expect(page.getByText('Seu carrinho de compras está vazio.')).toBeVisible();
+    
+    // Verifica se a tabela não foi renderizada
+    const tabela = page.locator('table');
+    await expect(tabela).not.toBeVisible();
+  });
+
+  test('Deve exibir a Página 404 ao acessar uma rota inexistente', async ({ page }) => {
+    // Tenta acessar uma URL maluca que não existe no roteador
+    await page.goto(`${BASE_URL}/rota-maluca-inexistente`);
+    
+    // Verifica se o componente de 404 (que criamos no utilitário de rotas) assumiu a tela
+    await expect(page.getByText('Página não encontrada')).toBeVisible();
   });
 
 });

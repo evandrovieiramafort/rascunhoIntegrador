@@ -6,7 +6,7 @@ use App\Repositories\{RepositorioCarrinho, RepositorioItem};
 use App\Models\{Carrinho, ItemCarrinho, Item};
 use App\Dto\CarrinhoDTO;
 use App\Mappers\MapperCarrinho;
-use App\Exceptions\{DominioException, NaoEncontradoException, EstoqueInsuficienteException};
+use App\Exceptions\{DominioException, NaoEncontradoException, EstoqueInsuficienteException, QuantidadeInvalidaException};
 
 class CarrinhoService {
     public function __construct(
@@ -34,8 +34,13 @@ class CarrinhoService {
     public function atualizarQuantidade(string $sessaoId, int $itemId, int $quantidade): CarrinhoDTO {
         $itemModel = $this->validarItem($itemId);
         $carrinho = $this->buscarCarrinho($sessaoId);
+
+        if ($quantidade < 0) {
+            // (Use a classe de Exception que você costuma usar para retornar Erro 400)
+            throw new QuantidadeInvalidaException($itemModel->getDescricao());
+        }
         
-        if ($quantidade <= 0) {
+        if ($quantidade == 0) {
             $carrinho->removerItem($itemId);
         } else {
             $this->validarRegraQuantidade($itemModel, $quantidade);

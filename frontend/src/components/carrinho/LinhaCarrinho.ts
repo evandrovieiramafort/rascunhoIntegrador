@@ -1,6 +1,6 @@
 import { htmlParaElemento } from "../../utils/UtilDOM";
 import { formatarC$ } from "../../utils/Formatador";
-import { Stepper, ModalConfirmacao } from "../ui/UIComponents";
+import { SeletorQuantidade, ModalConfirmacao } from "../ui/UIComponents"; 
 import type { ItemCarrinhoDTO } from "../../domain/ItemCarrinhoDTO";
 
 export function LinhaCarrinho(
@@ -23,7 +23,9 @@ export function LinhaCarrinho(
         </div>
       </td>
       <td class="text-center" data-preco></td>
-      <td class="text-center" data-stepper></td>
+      
+      <td class="text-center" data-seletor></td> 
+      
       <td class="fw-bold text-center" data-subtotal></td>
       <td class="text-center">
         <button class="btn btn-outline-danger btn-sm" data-btn-remover>Remover</button>
@@ -42,9 +44,11 @@ export function LinhaCarrinho(
   tr.querySelector("[data-subtotal]")!.textContent = formatarC$(ic.subtotal);
 
   const limiteMaximo = Math.min(10, ic.item.quantidadeEstoque);
-  
-  const stepperContainer = tr.querySelector("[data-stepper]")!;
-  stepperContainer.appendChild(Stepper(ic.quantidade, limiteMaximo, "140px", (novo) => aoMudarQtd(ic.item.id, novo)));
+ 
+  const seletorContainer = tr.querySelector("[data-seletor]")!;
+  seletorContainer.appendChild(
+    SeletorQuantidade(ic.quantidade, limiteMaximo, "100px", (novo) => aoMudarQtd(ic.item.id, novo))
+  );
 
   const btnRemover = tr.querySelector("[data-btn-remover]") as HTMLButtonElement;
   btnRemover.onclick = () => {

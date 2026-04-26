@@ -39,50 +39,39 @@ export function PrecoArea(precoVenda: number | string, precoFinal: number, perce
   return div;
 }
 
-export function Stepper(
+export function SeletorQuantidade(
   valorInicial: number, 
   maximo: number, 
-  largura: string = "140px", 
+  largura: string = "100px",
   aoMudar?: (novoValor: number) => Promise<void> 
 ): HTMLElement {
   
-  const elemento = htmlParaElemento(`
-    <div class="input-group shadow-sm" style="width: ${largura};">
-      <button class="btn btn-outline-secondary px-3" data-btn="menos">-</button>
-      <input type="text" class="form-control text-center fw-bold bg-white" readonly value="${valorInicial}">
-      <button class="btn btn-outline-secondary px-3" data-btn="mais">+</button>
-    </div>
-  `);
+  let opcoesHTML = "";
+  for (let i = 1; i <= maximo; i++) {
+    const selecionado = i === valorInicial ? "selected" : "";
+    opcoesHTML += `<option value="${i}" ${selecionado}>${i}</option>`;
+  }
 
-  const inputQtd = elemento.querySelector("input") as HTMLInputElement;
-  const btnMenos = elemento.querySelector('[data-btn="menos"]') as HTMLButtonElement;
-  const btnMais = elemento.querySelector('[data-btn="mais"]') as HTMLButtonElement;
+  const select = htmlParaElemento(`
+    <select id="seletor-quantidade" class="form-select shadow-sm text-center fw-bold bg-white" style="width: ${largura}; cursor: pointer;">
+      ${opcoesHTML}
+    </select>
+  `) as HTMLSelectElement;
 
-  const alterarQuantidade = async (delta: number) => {
-    const atual = parseInt(inputQtd.value);
-    const novoValor = atual + delta;
+  select.onchange = async () => {
+    const novoValor = parseInt(select.value);
+    select.disabled = true;
 
-    if (novoValor >= 1 && novoValor <= maximo) {
-      inputQtd.value = novoValor.toString();
-
-      btnMenos.disabled = true;
-      btnMais.disabled = true;
-
-      try {
-        if (aoMudar) {
-          await aoMudar(novoValor); 
-        }
-      } finally {
-        btnMenos.disabled = false;
-        btnMais.disabled = false;
+    try {
+      if (aoMudar) {
+        await aoMudar(novoValor); 
       }
+    } finally {
+      select.disabled = false;
     }
   };
 
-  btnMenos.onclick = () => alterarQuantidade(-1);
-  btnMais.onclick = () => alterarQuantidade(1);
-
-  return elemento;
+  return select;
 }
 
 export function ModalConfirmacao(titulo: string, corpoTexto: string, textoBtn: string, acao: () => void, corBtn: string = "primary"): void {

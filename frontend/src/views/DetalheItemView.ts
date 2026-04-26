@@ -34,7 +34,7 @@ export class DetalheItemView implements DetalheItemViewInterface {
     const componente = SecaoDetalhe(
       item,
       quantidadeNoCarrinho,
-      (qtd) => this.apresentadora.adicionarAoCarrinho(item, qtd),
+      (qtd) => this.apresentadora.adicionarAoCarrinho(item.id, qtd),
       () => navegarPara("/carrinho"),
     );
 

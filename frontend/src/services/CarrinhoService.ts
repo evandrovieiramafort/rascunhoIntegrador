@@ -1,6 +1,5 @@
 import { API_URL } from "../infra/conf";
 import type { CarrinhoDTO } from "../domain/CarrinhoDTO";
-import type { ItemDTO } from "../domain/ItemDTO";
 
 export class CarrinhoService {
     
@@ -28,10 +27,10 @@ export class CarrinhoService {
         return this.fetchAPI('/carrinho');
     }
 
-    async adicionarItem(item: ItemDTO, quantidade: number): Promise<CarrinhoDTO> {
+    async adicionarItem(itemId: number, quantidade: number): Promise<CarrinhoDTO> {
         return this.fetchAPI('/carrinho/item', {
             method: 'POST',
-            body: JSON.stringify({ item_id: item.id, quantidade: quantidade })
+            body: JSON.stringify({ item_id: itemId, quantidade: quantidade })
         });
     }
 

@@ -32,4 +32,20 @@ describe('Integração: ItemService', () => {
         expect(item).toHaveProperty('descricaoDetalhada');
         expect(item.quantidadeEstoque).toBeGreaterThanOrEqual(0);
     });
+
+    it('deve lançar um erro ao tentar buscar os detalhes de um item inexistente', async () => {
+        const ID_FANTASMA = 999999;
+        
+        await expect(servico.obterPorId(ID_FANTASMA))
+            .rejects
+            .toThrow();
+    });
+
+    it('deve retornar um erro ao acessar uma página de paginação além do limite', async () => {
+        const PAGINA_INEXISTENTE = 99999;
+        
+        await expect(servico.obterItens(PAGINA_INEXISTENTE))
+            .rejects
+            .toThrow('A busca não retornou resultados.');
+    });
 });

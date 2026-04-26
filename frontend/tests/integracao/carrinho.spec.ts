@@ -51,4 +51,24 @@ describe('Integração: CarrinhoService', () => {
         
         expect(itemInserido).toBeUndefined();
     });
+
+    it('deve lançar um erro ao tentar adicionar um item que não existe no banco', async () => {
+        const servico = new CarrinhoService();
+        const ID_FANTASMA = 999999;
+        
+        await expect(servico.adicionarItem(ID_FANTASMA, 1))
+            .rejects
+            .toThrow();
+    });
+
+    it('deve lançar um erro ao tentar atualizar quantidade para um valor inválido (negativo)', async () => {
+        const servico = new CarrinhoService();
+        const ID_CANECA = 5;
+        
+        await servico.adicionarItem(ID_CANECA, 1);
+
+        await expect(servico.atualizarQuantidade(ID_CANECA, -5))
+            .rejects
+            .toThrow();
+    });
 });
