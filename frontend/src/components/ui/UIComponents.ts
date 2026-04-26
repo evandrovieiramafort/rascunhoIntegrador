@@ -1,6 +1,8 @@
 import { htmlParaElemento } from "../../utils/UtilDOM";
 import { formatarC$ } from "../../utils/Formatador";
 
+
+// usamos só pra não deixar a tela em branco enquanto os dados carregam - escolha editorial kkkk
 export function Spinner(): HTMLElement {
   return htmlParaElemento(`
     <div class="text-center my-5">

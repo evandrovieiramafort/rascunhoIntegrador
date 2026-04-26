@@ -14,17 +14,23 @@ export class HomeView implements HomeViewInterface {
     this.apresentadora = new HomePresenter(this);
   }
 
+  // MÉTODO PRINCIPAL: Chama a presenter/controller pra obter os produtos
   async iniciar(paginaAtual: number = 1): Promise<void> {
     await this.apresentadora.carregarProdutos(paginaAtual);
   }
 
+  //
   public exibirItens(itens: ItemDTO[]): void {
-    const divItens = obterHTML('#itens-container');
-    limparFilhos(divItens);
+    const divItens = obterHTML('#itens-container'); // pega o "#itens-container" (onde cada item vai ficar)
+    limparFilhos(divItens); // faz a limpeza da div caso haja algo na tag (usado a cada vez que a página muda)
 
+    // chama o forEach para todos os 6 itens que retornarem do GET->6
     itens.forEach((item) => {
+      // ---------- Para cada um dos itens que vier do back: ------------
+
+      // É feita a injeção dos dados do item via container "CardProduto" na div de exibição do item
       divItens.appendChild(
-        CardProduto(item, (id) => navegarPara(`/detalhes?id=${id}`)),
+        CardProduto(item, (id) => navegarPara(`/detalhes?id=${id}`)), // 
       );
     });
   }
@@ -62,6 +68,8 @@ export class HomeView implements HomeViewInterface {
     );
   }
 
+  // obtém a div #itens-container (onde cada item vai ficar em tela) do html, 
+  // limpa todos os filhos que a tag tiver e adiciona o Spinner na div
   public exibirCarregamento(): void {
     const divItens = obterHTML('#itens-container');
     limparFilhos(divItens);
