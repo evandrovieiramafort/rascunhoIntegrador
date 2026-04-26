@@ -3,7 +3,9 @@
 use App\Services\ItemService;
 use App\Repositories\RepositorioItemEmBDR;
 use App\Dto\PaginacaoDTO;
+use App\Exceptions\NaoEncontradoException;
 use App\Test\SpecHelper;
+
 
 describe('ItemService', function () {
     beforeAll(function () {
@@ -25,7 +27,7 @@ describe('ItemService', function () {
 
         it('deve falhar se a página não possuir itens', function () {
             $closure = function () { $this->servico->ObterTodosOsItens(99); };
-            expect($closure)->toThrow('A busca não retornou resultados.');
+            expect($closure)->toThrow(NaoEncontradoException::paraBusca());
         });
     });
 
@@ -36,8 +38,9 @@ describe('ItemService', function () {
         });
 
         it('deve falhar ao buscar um ID que não existe no banco', function () {
-            $closure = function () { $this->servico->ObterPorId(9999); };
-            expect($closure)->toThrow('Item com ID 9999 não encontrado.');
+            $id = 9999;
+            $closure = function () use ($id) { $this->servico->ObterPorId($id); };
+            expect($closure)->toThrow(NaoEncontradoException::paraEntidade("Item", $id));
         });
     });
 });

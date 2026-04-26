@@ -6,7 +6,7 @@ use App\Repositories\{RepositorioCarrinho, RepositorioItem};
 use App\Models\{Carrinho, ItemCarrinho, Item};
 use App\Dto\CarrinhoDTO;
 use App\Mappers\MapperCarrinho;
-use App\Exceptions\{DominioException, EntidadeNaoEncontradaException, EstoqueInsuficienteException};
+use App\Exceptions\{DominioException, NaoEncontradoException, EstoqueInsuficienteException};
 
 class CarrinhoService {
     public function __construct(
@@ -56,7 +56,7 @@ class CarrinhoService {
 
     private function validarItem(int $itemId): Item {
         $item = $this->repoItem->ObterPorId($itemId);
-        if (!$item) throw new EntidadeNaoEncontradaException("Item", $itemId);
+        if (!$item) throw NaoEncontradoException::paraEntidade("Item", $itemId);
         return $item;
     }
 
@@ -66,7 +66,7 @@ class CarrinhoService {
 
     private function buscarCarrinho(string $sessaoId): Carrinho {
         $carrinho = $this->repoCarrinho->ObterCarrinhoPorId($sessaoId);
-        if (!$carrinho) throw new EntidadeNaoEncontradaException("Carrinho", $sessaoId);
+        if (!$carrinho) throw NaoEncontradoException::paraEntidade("Carrinho", $sessaoId);
         return $carrinho;
     }
 

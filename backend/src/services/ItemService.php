@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Repositories\RepositorioItem;
 use App\Mappers\MapperItem;
 use App\Dto\{PaginacaoDTO, ItemDTO};
-use App\Exceptions\{EntidadeNaoEncontradaException, FalhaNaBuscaException};
+use App\Exceptions\{EntidadeNaoEncontradaException, FalhaNaBuscaException, NaoEncontradoException};
 use App\Models\Item;
 
 class ItemService {
@@ -19,7 +19,7 @@ class ItemService {
         $itensModel = $this->repositorio->obterTodosOsItens($pagina);
         
         if (empty($itensModel)) {
-            throw new FalhaNaBuscaException();
+            throw NaoEncontradoException::paraBusca();
         }
         
         $totalItens = $this->repositorio->contarTotalItens();
@@ -39,7 +39,7 @@ class ItemService {
     public function buscarItem(int $id): Item {
         $item = $this->repositorio->obterPorId($id);
         if (!$item) {
-            throw new EntidadeNaoEncontradaException("Item", $id);
+            throw NaoEncontradoException::paraEntidade("Item", $id);
         }
         return $item;
     }

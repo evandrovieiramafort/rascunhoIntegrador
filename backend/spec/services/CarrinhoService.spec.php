@@ -3,7 +3,7 @@
 use App\Services\CarrinhoService;
 use App\Repositories\RepositorioCarrinhoEmSessao;
 use App\Repositories\RepositorioItemEmBDR;
-use App\Exceptions\EntidadeNaoEncontradaException;
+use App\Exceptions\NaoEncontradoException;
 use App\Exceptions\DominioException;
 use App\Exceptions\EstoqueInsuficienteException;
 use App\Test\SpecHelper;
@@ -52,13 +52,15 @@ describe('CarrinhoService', function () {
 
     describe('Gestão de Entidades', function () {
         it('deve falhar ao tentar manipular um item que não existe no catálogo', function () {
-            $closure = fn() => $this->servico->adicionarItem("sessao", $this->ID_INEXISTENTE, 1);
-            expect($closure)->toThrow(new EntidadeNaoEncontradaException("Item", $this->ID_INEXISTENTE));
+            $id = $this->ID_INEXISTENTE;
+            $closure = fn() => $this->servico->adicionarItem("sessao", $id, 1);
+            expect($closure)->toThrow(NaoEncontradoException::paraEntidade("Item", $id));
         });
 
         it('deve falhar ao tentar atualizar um carrinho que ainda não foi persistido', function () {
-            $closure = fn() => $this->servico->atualizarQuantidade("carrinho_fantasma", $this->ID_CAMISETA_BSI, 5);
-            expect($closure)->toThrow(new EntidadeNaoEncontradaException("Carrinho", "carrinho_fantasma"));
+            $sessao = "carrinho_fantasma";
+            $closure = fn() => $this->servico->atualizarQuantidade($sessao, $this->ID_CAMISETA_BSI, 5);
+            expect($closure)->toThrow(NaoEncontradoException::paraEntidade("Carrinho", $sessao));
         });
     });
 
