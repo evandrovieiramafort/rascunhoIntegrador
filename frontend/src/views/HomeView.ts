@@ -1,5 +1,5 @@
 import { navegarPara } from '../utils/Navegacao';
-import { obterHTML, limparFilhos } from '../utils/UtilDOM';
+import { prepararContainer } from '../utils/UtilDOM';
 import { HomePresenter } from '../presenter/HomePresenter';
 import { CardProduto } from '../components/home/CardProduto';
 import { PaginacaoItem } from '../components/home/PaginacaoItem';
@@ -9,6 +9,8 @@ import type { HomeViewInterface } from './interfaces/HomeViewInterface';
 
 export class HomeView implements HomeViewInterface {
   private apresentadora: HomePresenter;
+  private readonly CONTAINER_ITENS = "#itens-container";
+  private readonly CONTAINER_PAGINACAO = "#paginacao-container";
 
   constructor() {
     this.apresentadora = new HomePresenter(this);
@@ -19,8 +21,7 @@ export class HomeView implements HomeViewInterface {
   }
 
   public exibirItens(itens: ItemDTO[]): void {
-    const divItens = obterHTML('#itens-container');
-    limparFilhos(divItens);
+    const divItens = prepararContainer(this.CONTAINER_ITENS);
 
     itens.forEach((item) => {
       divItens.appendChild(
@@ -30,48 +31,44 @@ export class HomeView implements HomeViewInterface {
   }
 
   public exibirPaginacao(paginaAtual: number, totalPaginas: number): void {
-    const navPaginacao = obterHTML('#paginacao-container');
-    limparFilhos(navPaginacao);
+    const navPaginacao = prepararContainer(this.CONTAINER_PAGINACAO);
+
 
     const aoMudarPagina = (pag: number) => {
       const url = new URL(window.location.href);
       url.searchParams.set('pagina', pag.toString());
       window.history.pushState({}, '', url);
       this.iniciar(pag);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
     };
 
-    navPaginacao.appendChild(
-      PaginacaoItem('Anterior', paginaAtual <= 1, false, () =>
-        aoMudarPagina(paginaAtual - 1),
-      ),
+    this.gerarBotoesPaginacao(navPaginacao, paginaAtual, totalPaginas, aoMudarPagina);
+  }
+
+  private gerarBotoesPaginacao(container: HTMLElement, atual: number, total: number, acao: (p: number) => void): void {
+    
+    container.appendChild(
+      PaginacaoItem('Anterior', atual <= 1, false, () => acao(atual - 1))
     );
 
-    for (let i = 1; i <= totalPaginas; i++) {
-      navPaginacao.appendChild(
-        PaginacaoItem(i.toString(), false, i === paginaAtual, () =>
-          aoMudarPagina(i),
-        ),
+    for (let i = 1; i <= total; i++) {
+      container.appendChild(
+        PaginacaoItem(i.toString(), false, i === atual, () => acao(i))
       );
     }
 
-    navPaginacao.appendChild(
-      PaginacaoItem('Próximo', paginaAtual >= totalPaginas, false, () =>
-        aoMudarPagina(paginaAtual + 1),
-      ),
+    container.appendChild(
+      PaginacaoItem('Próximo', atual >= total, false, () => acao(atual + 1))
     );
   }
 
   public exibirCarregamento(): void {
-    const divItens = obterHTML('#itens-container');
-    limparFilhos(divItens);
-    divItens.appendChild(Spinner());
+    prepararContainer(this.CONTAINER_ITENS).appendChild(Spinner());
+    prepararContainer(this.CONTAINER_PAGINACAO); 
   }
 
   public exibirErro(mensagem: string): void {
-    const divItens = obterHTML('#itens-container');
-    limparFilhos(divItens);
-    divItens.appendChild(Alerta(mensagem));
-    limparFilhos(obterHTML('#paginacao-container'));
+    prepararContainer(this.CONTAINER_ITENS).appendChild(Alerta(mensagem));
+    prepararContainer(this.CONTAINER_PAGINACAO);
   }
 }

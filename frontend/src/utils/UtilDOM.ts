@@ -8,6 +8,12 @@ export function limparFilhos(elemento: HTMLElement): void {
   elemento.replaceChildren();
 }
 
+export function prepararContainer(seletor: string): HTMLElement {
+    const elemento = obterHTML(seletor);
+    limparFilhos(elemento);
+    return elemento;
+  }
+
 export function htmlParaElemento(html: string): HTMLElement {
   const template = document.createElement("template");
   template.innerHTML = html.trim();

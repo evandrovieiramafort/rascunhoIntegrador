@@ -1,5 +1,5 @@
 import { CarrinhoPresenter } from '../presenter/CarrinhoPresenter';
-import { obterHTML, limparFilhos, htmlParaElemento } from '../utils/UtilDOM';
+import { obterHTML, htmlParaElemento, prepararContainer } from '../utils/UtilDOM';
 import { LinhaCarrinho } from '../components/carrinho/LinhaCarrinho';
 import { TabelaCarrinhoBase } from '../components/carrinho/TabelaCarrinho';
 import { Spinner, Alerta } from '../components/ui/UIComponents';
@@ -8,6 +8,7 @@ import type { CarrinhoViewInterface } from './interfaces/CarrinhoViewInterface';
 
 export class CarrinhoView implements CarrinhoViewInterface {
   private apresentadora: CarrinhoPresenter;
+  private readonly CONTAINER_CARRINHO = "#carrinho-conteudo";
 
   constructor() {
     this.apresentadora = new CarrinhoPresenter(this);
@@ -18,8 +19,7 @@ export class CarrinhoView implements CarrinhoViewInterface {
   }
 
   public exibirCarrinho(carrinho: CarrinhoDTO): void {
-    const container = obterHTML('#carrinho-conteudo');
-    limparFilhos(container);
+    const container = prepararContainer(this.CONTAINER_CARRINHO);
 
     if (carrinho.itens.length === 0) {
       container.appendChild(
@@ -59,14 +59,10 @@ export class CarrinhoView implements CarrinhoViewInterface {
   }
 
   public exibirCarregamento(): void {
-    const c = obterHTML('#carrinho-conteudo');
-    limparFilhos(c);
-    c.appendChild(Spinner());
+    prepararContainer(this.CONTAINER_CARRINHO).appendChild(Spinner());
   }
 
   public exibirErro(msg: string): void {
-    const c = obterHTML('#carrinho-conteudo');
-    limparFilhos(c);
-    c.appendChild(Alerta(msg));
+    prepararContainer(this.CONTAINER_CARRINHO).appendChild(Alerta(msg));
   }
 }

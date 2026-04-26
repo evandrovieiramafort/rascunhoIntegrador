@@ -2,6 +2,7 @@ import { ItemService } from '../services/ItemService';
 import { CarrinhoService } from '../services/CarrinhoService';
 import type { DetalheItemViewInterface } from '../views/interfaces/DetalheItemViewInterface';
 import type { ItemDTO } from '../domain/ItemDTO';
+import { navegarPara } from '../utils/Navegacao';
 
 export class DetalhePresenter {
   private servicoItem: ItemService;
@@ -30,10 +31,7 @@ export class DetalhePresenter {
       await this.servicoCarrinho.atualizarBadgeNav();
       this.visao.notificarSucessoAdicao();
 
-      setTimeout(() => {
-        window.history.pushState({}, '', '/');
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }, 800);
+      setTimeout(() => navegarPara("/"), 800);
     } catch (erro) {
       const mensagem = erro instanceof Error ? erro.message : "Falha ao adicionar item ao carrinho";
       this.visao.notificarErroAdicao(mensagem);
