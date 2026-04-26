@@ -18,8 +18,10 @@ export class HomePresenter {
       
       this.visao.exibirItens(dados.itens); // faz a exibição dos itens em tela
       
+      // faz a exibição da navegação com base na paginação
       this.visao.exibirPaginacao(dados.paginaAtual, dados.totalPaginas);
     } catch (erro) {
+      // se der ruim, pega a mensagem que veio da service (que veio do backend) e manda ela pro exibirErro (na view)
       const mensagem = erro instanceof Error ? erro.message : "Não foi possível carregar os produtos do servidor";
       this.visao.exibirErro(mensagem);
     }
