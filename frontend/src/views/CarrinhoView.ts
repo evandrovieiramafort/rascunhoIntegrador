@@ -1,10 +1,14 @@
-import { CarrinhoPresenter } from '../presenter/CarrinhoPresenter';
-import { obterHTML, htmlParaElemento, prepararContainer } from '../utils/UtilDOM';
-import { LinhaCarrinho } from '../components/carrinho/LinhaCarrinho';
-import { TabelaCarrinhoBase } from '../components/carrinho/TabelaCarrinho';
-import { Spinner, Alerta } from '../components/ui/UIComponents';
-import type { CarrinhoDTO } from '../domain/CarrinhoDTO';
-import type { CarrinhoViewInterface } from './interfaces/CarrinhoViewInterface';
+import { CarrinhoPresenter } from "../presenter/CarrinhoPresenter";
+import {
+  obterHTML,
+  htmlParaElemento,
+  prepararContainer,
+} from "../utils/UtilDOM";
+import { LinhaCarrinho } from "../components/carrinho/LinhaCarrinho";
+import { TabelaCarrinhoBase } from "../components/carrinho/TabelaCarrinho";
+import { Spinner, Alerta } from "../components/ui/UIComponents";
+import type { CarrinhoDTO } from "../domain/CarrinhoDTO";
+import type { CarrinhoViewInterface } from "./interfaces/CarrinhoViewInterface";
 
 export class CarrinhoView implements CarrinhoViewInterface {
   private apresentadora: CarrinhoPresenter;
@@ -21,19 +25,20 @@ export class CarrinhoView implements CarrinhoViewInterface {
   public exibirCarrinho(carrinho: CarrinhoDTO): void {
     const container = prepararContainer(this.CONTAINER_CARRINHO);
 
-    if (carrinho.itens.length === 0) {
+    const carrinhoVazio = carrinho.itens.length === 0;
+    if (carrinhoVazio) {
       container.appendChild(
-        Alerta('Seu carrinho de compras está vazio.', 'info'),
+        Alerta("Seu carrinho de compras está vazio.", "info"),
       );
       return;
     }
 
     const baseTabela = TabelaCarrinhoBase(carrinho.totalGeral);
     const tbody = baseTabela.querySelector(
-      '[data-corpo-tabela]',
+      "[data-corpo-tabela]",
     ) as HTMLElement;
 
-    [...carrinho.itens].reverse().forEach((ic) => {
+    carrinho.itens.forEach((ic) => {
       const linha = LinhaCarrinho(
         ic,
         (id, novaQtd) => this.apresentadora.atualizarQuantidade(id, novaQtd),
@@ -46,9 +51,9 @@ export class CarrinhoView implements CarrinhoViewInterface {
   }
 
   public exibirMensagemFeedback(msg: string): void {
-    const container = obterHTML('#feedback-operacao-carrinho');
-    const alerta = Alerta(msg, 'warning');
-    alerta.classList.add('alert-dismissible', 'fade', 'show');
+    const container = obterHTML("#feedback-operacao-carrinho");
+    const alerta = Alerta(msg, "warning");
+    alerta.classList.add("alert-dismissible", "fade", "show");
 
     const btn = htmlParaElemento(`<button class="btn-close"></button>`);
     btn.onclick = () => alerta.remove();
