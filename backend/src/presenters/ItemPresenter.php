@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Services;
+namespace App\Presenters;
 
 use App\Repositories\RepositorioItem;
 use App\Mappers\MapperItem;
 use App\Dto\{PaginacaoDTO, ItemDTO};
-use App\Exceptions\{EntidadeNaoEncontradaException, FalhaNaBuscaException, NaoEncontradoException};
+use App\Exceptions\{NaoEncontradoException};
 use App\Models\Item;
 
-class ItemService {
+class ItemPresenter {
     private const ITENS_POR_PAGINA = 6;
 
     public function __construct(

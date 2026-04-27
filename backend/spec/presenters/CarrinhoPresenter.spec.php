@@ -1,19 +1,18 @@
 <?php
 
-use App\Services\CarrinhoService;
+use App\Presenters\CarrinhoPresenter;
 use App\Repositories\RepositorioCarrinhoEmSessao;
 use App\Repositories\RepositorioItemEmBDR;
 use App\Exceptions\NaoEncontradoException;
 use App\Exceptions\DominioException;
-use App\Exceptions\EstoqueInsuficienteException;
 use App\Test\SpecHelper;
 
-describe('CarrinhoService', function () {
+describe('CarrinhoPresenter', function () {
     beforeAll(function () {
         $this->pdo = SpecHelper::prepararBancoDeDados();
         $this->repoCarrinho = new RepositorioCarrinhoEmSessao();
         $this->repoItem = new RepositorioItemEmBDR($this->pdo);
-        $this->servico = new CarrinhoService($this->repoCarrinho, $this->repoItem);
+        $this->servico = new CarrinhoPresenter($this->repoCarrinho, $this->repoItem);
 
         $this->ID_CAMISETA_BSI = 1;
         $this->ID_MOLETOM_OUT = 9;
@@ -34,19 +33,19 @@ describe('CarrinhoService', function () {
     });
 
     describe('Validações de Regras de Negócio', function () {
-        it('deve impedir a adição de mais de 10 unidades (limite global do serviço)', function () {
+        it('deve impedir a adição de mais de 10 unidades (limite global do sistema)', function () {
             $closure = fn() => $this->servico->adicionarItem("sessao", $this->ID_CAMISETA_BSI, 11);
-            expect($closure)->toThrow(new EstoqueInsuficienteException('Camiseta BSI'));
+            expect($closure)->toThrow(new DominioException("Quantidade inválida para o item Camiseta BSI"));
         });
 
         it('deve lançar exceção para quantidades nulas ou negativas na adição', function () {
             $closure = fn() => $this->servico->adicionarItem("sessao", $this->ID_CAMISETA_BSI, 0);
-            expect($closure)->toThrow(new DominioException("A quantidade deve ser maior do que zero"));
+            expect($closure)->toThrow(new DominioException("Quantidade inválida para o item Camiseta BSI"));
         });
 
         it('deve validar o estoque real quando for menor que o limite de 10 unidades', function () {
             $closure = fn() => $this->servico->adicionarItem("sessao", $this->ID_MOLETOM_OUT, 10);
-            expect($closure)->toThrow(new EstoqueInsuficienteException('Moletom Out'));
+            expect($closure)->toThrow(new DominioException("Quantidade inválida para o item Moletom Out"));
         });
     });
 

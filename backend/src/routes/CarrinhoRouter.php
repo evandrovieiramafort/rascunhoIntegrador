@@ -2,7 +2,7 @@
 
 
 use phputil\router\{HttpRequest, HttpResponse, Router};
-use App\Services\CarrinhoService;
+use App\Presenters\CarrinhoPresenter;
 use App\Repositories\RepositorioCarrinhoEmSessao;
 use App\Repositories\RepositorioItemEmBDR;
 use App\Exceptions\DominioException;
@@ -12,7 +12,7 @@ use App\Exceptions\NaoEncontradoException;
 return function (Router $app, \PDO $pdo): void {
     $repoSessao = new RepositorioCarrinhoEmSessao();
     $repoItem = new RepositorioItemEmBDR($pdo);
-    $servico = new CarrinhoService($repoSessao, $repoItem);
+    $servico = new CarrinhoPresenter($repoSessao, $repoItem);
 
     $app->get('/carrinho', function (HttpRequest $req, HttpResponse $res) use ($servico) {
         try {

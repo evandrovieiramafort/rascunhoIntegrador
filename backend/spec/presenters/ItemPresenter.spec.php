@@ -1,17 +1,17 @@
 <?php
 
-use App\Services\ItemService;
+use App\Presenters\ItemPresenter;
 use App\Repositories\RepositorioItemEmBDR;
 use App\Dto\PaginacaoDTO;
 use App\Exceptions\NaoEncontradoException;
 use App\Test\SpecHelper;
 
 
-describe('ItemService', function () {
+describe('ItemPresenter', function () {
     beforeAll(function () {
         $this->pdo = SpecHelper::prepararBancoDeDados();
         $this->repo = new RepositorioItemEmBDR($this->pdo);
-        $this->servico = new ItemService($this->repo);
+        $this->servico = new ItemPresenter($this->repo);
     });
 
     afterAll(function () {
