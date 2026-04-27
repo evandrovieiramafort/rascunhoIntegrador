@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { CarrinhoService } from '../../src/services/CarrinhoService';
+import { expectValidoCarrinhoDTO, localizarNoCarrinho } from './helpers/carrinho-helper';
 
 describe('Integração: CarrinhoService', () => {
     
@@ -12,7 +13,6 @@ describe('Integração: CarrinhoService', () => {
                 options.headers = { ...options.headers, 'Cookie': cookieSessao };
             }
             const response = await fetchOriginal(url, options);
-            
             const setCookie = response.headers.get('set-cookie');
             if (setCookie) {
                 cookieSessao = setCookie.split(';')[0]; 
@@ -25,50 +25,35 @@ describe('Integração: CarrinhoService', () => {
         const servico = new CarrinhoService();
         const ID_CANECA = 5;
         
-        // --- 1. Adicionar Item ---
         let carrinho = await servico.adicionarItem(ID_CANECA, 2);
+        expectValidoCarrinhoDTO(carrinho);
         
-        expect(carrinho).toHaveProperty('itens');
-        let itemInserido = carrinho.itens.find(ic => ic.item.id === ID_CANECA);
-        
+        let itemInserido = localizarNoCarrinho(carrinho, ID_CANECA);
         expect(itemInserido).toBeDefined();
         expect(itemInserido?.quantidade).toBe(2);
 
-        // --- 2. Atualizar Quantidade ---
         carrinho = await servico.atualizarQuantidade(ID_CANECA, 5);
-        itemInserido = carrinho.itens.find(ic => ic.item.id === ID_CANECA);
-        
+        itemInserido = localizarNoCarrinho(carrinho, ID_CANECA);
         expect(itemInserido?.quantidade).toBe(5);
 
-        // --- 3. Obter Carrinho ---
         carrinho = await servico.obterCarrinho();
+        expectValidoCarrinhoDTO(carrinho);
         expect(carrinho.itens.length).toBeGreaterThan(0);
-        expect(carrinho).toHaveProperty('totalGeral');
 
-        // --- 4. Remover Item ---
         carrinho = await servico.removerItem(ID_CANECA);
-        itemInserido = carrinho.itens.find(ic => ic.item.id === ID_CANECA);
-        
+        itemInserido = localizarNoCarrinho(carrinho, ID_CANECA);
         expect(itemInserido).toBeUndefined();
     });
 
     it('deve lançar um erro ao tentar adicionar um item que não existe no banco', async () => {
         const servico = new CarrinhoService();
-        const ID_FANTASMA = 999999;
-        
-        await expect(servico.adicionarItem(ID_FANTASMA, 1))
-            .rejects
-            .toThrow();
+        await expect(servico.adicionarItem(999999, 1)).rejects.toThrow();
     });
 
     it('deve lançar um erro ao tentar atualizar quantidade para um valor inválido (negativo)', async () => {
         const servico = new CarrinhoService();
         const ID_CANECA = 5;
-        
         await servico.adicionarItem(ID_CANECA, 1);
-
-        await expect(servico.atualizarQuantidade(ID_CANECA, -5))
-            .rejects
-            .toThrow();
+        await expect(servico.atualizarQuantidade(ID_CANECA, -5)).rejects.toThrow();
     });
 });
