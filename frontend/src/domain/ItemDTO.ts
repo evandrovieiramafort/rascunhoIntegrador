@@ -4,7 +4,7 @@ export interface ItemDTO {
     descricao: string;
     descricaoDetalhada: string;
     periodoLancamento: string;
-    precoVenda: number | string;
+    precoVenda: number;
     percentualDesconto: number;
     precoFinal: number;
     quantidadeEstoque: number;
