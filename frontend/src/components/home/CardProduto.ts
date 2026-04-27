@@ -23,7 +23,6 @@ export function CardProduto(item: ItemDTO, aoClicarDetalhes: (id: number) => voi
   const img = elemento.querySelector("img")!;
   img.src = item.foto;
   img.alt = item.descricao;
-  img.onclick = () => aoClicarDetalhes(item.id);
 
   elemento.querySelector("h5")!.textContent = item.descricao;
   elemento.querySelector("p")!.textContent = item.descricaoDetalhada;
@@ -32,6 +31,7 @@ export function CardProduto(item: ItemDTO, aoClicarDetalhes: (id: number) => voi
   btnAcao.textContent = item.estaEsgotado ? "Sem estoque" : "Detalhes";
   btnAcao.disabled = item.estaEsgotado;
   if (!item.estaEsgotado) {
+    img.onclick = () => aoClicarDetalhes(item.id);
     btnAcao.onclick = () => aoClicarDetalhes(item.id);
   }
 

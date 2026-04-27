@@ -33,7 +33,6 @@ export class HomeView implements HomeViewInterface {
   public exibirPaginacao(paginaAtual: number, totalPaginas: number): void {
     const navPaginacao = prepararContainer(this.CONTAINER_PAGINACAO);
 
-
     const aoMudarPagina = (pag: number) => {
       const url = new URL(window.location.href);
       url.searchParams.set('pagina', pag.toString());

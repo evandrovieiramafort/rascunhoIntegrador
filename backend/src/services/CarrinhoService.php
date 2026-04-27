@@ -36,7 +36,6 @@ class CarrinhoService {
         $carrinho = $this->buscarCarrinho($sessaoId);
 
         if ($quantidade < 0) {
-            // (Use a classe de Exception que você costuma usar para retornar Erro 400)
             throw new QuantidadeInvalidaException($itemModel->getDescricao());
         }
         
@@ -81,7 +80,7 @@ class CarrinhoService {
             throw new EstoqueInsuficienteException($item->getDescricao());
         }
         if ($quantidadeFinal <= 0) {
-            throw new DominioException("A quantidade deve ser maior do que zero");
+            throw new QuantidadeInvalidaException($item->getDescricao());
         }
     }
 
