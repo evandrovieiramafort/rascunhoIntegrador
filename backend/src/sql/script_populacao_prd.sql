@@ -40,7 +40,7 @@ INSERT INTO item (categoria_id, foto, descricao, descricao_detalhada, periodo_la
 VALUES (@cat_camisetas, '/src/assets/img/camisa original.png', 'Camiseta CEFET Branca', 'Camiseta branca oficial com logo no peito.', '2025-1', 40.00, 0.00, 60, 40);
 
 INSERT INTO item (categoria_id, foto, descricao, descricao_detalhada, periodo_lancamento, preco_venda, percentual_desconto, quantidade_estoque, total_vendas) 
-VALUES (@cat_frio, '/src/assets/img/moletom azul.png', 'Moletom Azul Marinho', 'Moletom liso com logo discreto no peito.', '2026-1', 125.00, 15.00, 8, 30);
+VALUES (@cat_frio, '/src/assets/img/moletom azul.png', 'Moletom Azul Marinho', 'Moletom liso com logo discreto na parte superior.', '2026-1', 125.00, 15.00, 8, 30);
 
 INSERT INTO item (categoria_id, foto, descricao, descricao_detalhada, periodo_lancamento, preco_venda, percentual_desconto, quantidade_estoque, total_vendas) 
 VALUES (@cat_frio, '/src/assets/img/moletom cinza.png', 'Moletom Cinza Mescla', 'Blusa de frio em moletom cinza com estampa lateral.', '2026-1', 125.00, 0.00, 12, 15);

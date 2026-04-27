@@ -1,7 +1,6 @@
 import { ItemService } from '../services/ItemService';
 import { CarrinhoService } from '../services/CarrinhoService';
 import type { DetalheItemViewInterface } from '../views/interfaces/DetalheItemViewInterface';
-import type { ItemDTO } from '../domain/ItemDTO';
 import { navegarPara } from '../utils/Navegacao';
 
 export class DetalhePresenter {
