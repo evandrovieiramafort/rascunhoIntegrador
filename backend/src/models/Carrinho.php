@@ -29,7 +29,7 @@ class Carrinho
 
     public function getQuantidadeDoItem(int $itemId): int
     {
-        return isset($this->listaIitens[$itemId]) ? $this->listaItens[$itemId]->getQuantidade() : 0;
+        return isset($this->listaItens[$itemId]) ? $this->listaItens[$itemId]->getQuantidade() : 0;
     }
 
     public function adicionarItem(ItemCarrinho $itemCarrinho): void
