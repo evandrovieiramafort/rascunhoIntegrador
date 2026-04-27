@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-// Agora herda de DominioException, garantindo que o Router saiba lidar com ela
 class NaoEncontradoException extends DominioException {
     
     public function __construct(string $mensagem = "O recurso solicitado não foi encontrado.") {
