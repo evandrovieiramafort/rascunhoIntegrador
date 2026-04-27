@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Exceptions\DominioException;
+
 class Carrinho
 {
     /** @var array<int, ItemCarrinho> */
-    private array $itens = [];
+    private array $listaItens = [];
     private float $totalGeral = 0.0;
 
     public function __construct(private string $id) {}
@@ -22,28 +24,28 @@ class Carrinho
     /** @return list<ItemCarrinho> */
     public function getItens(): array
     {
-        return array_values($this->itens);
+        return array_values($this->listaItens);
     }
 
     public function getQuantidadeDoItem(int $itemId): int
     {
-        return isset($this->itens[$itemId]) ? $this->itens[$itemId]->getQuantidade() : 0;
+        return isset($this->listaIitens[$itemId]) ? $this->listaItens[$itemId]->getQuantidade() : 0;
     }
 
-    public function adicionarItem(ItemCarrinho $novoItem): void
+    public function adicionarItem(ItemCarrinho $itemCarrinho): void
     {
-        $itemId = $novoItem->getItem()->getId();
-        $itemModel = $novoItem->getItem();
+        $itemCarrinhoId = $itemCarrinho->getItem()->getId();
+        $item = $itemCarrinho->getItem();
 
-        $quantidadeNoCarrinho = $this->getQuantidadeDoItem($itemId);
-        $novaQuantidade = $quantidadeNoCarrinho + $novoItem->getQuantidade();
+        $quantidadeNoCarrinho = $this->getQuantidadeDoItem($itemCarrinhoId);
+        $novaQuantidade = $quantidadeNoCarrinho + $itemCarrinho->getQuantidade();
 
-        $this->validarLimite($itemModel, $novaQuantidade);
+        $this->validarLimite($item, $novaQuantidade);
 
-        if (isset($this->itens[$itemId])) {
-            $this->atualizarQuantidade($itemId, $novaQuantidade);
+        if (isset($this->listaItens[$itemCarrinhoId])) {
+            $this->atualizarQuantidade($itemCarrinhoId, $novaQuantidade);
         } else {
-            $this->itens[$itemId] = $this->garantirSubtotalCorreto($novoItem);
+            $this->listaItens[$itemCarrinhoId] = $this->garantirSubtotalCorreto($itemCarrinho);
             $this->recalcularTotal();
         }
     }
@@ -52,26 +54,26 @@ class Carrinho
     {
         $limite = min(10, $item->getQuantidadeEstoque());
         if ($quantidade > $limite || $quantidade <= 0) {
-            throw new \App\Exceptions\DominioException("Quantidade inválida para o item " . $item->getDescricao());
+            throw new DominioException("Quantidade inválida para o item " . $item->getDescricao());
         }
     }
 
     public function atualizarQuantidade(int $itemId, int $quantidade): void {
-    if (isset($this->itens[$itemId])) {
-        $itemModel = $this->itens[$itemId]->getItem();
+    if (isset($this->listaItens[$itemId])) {
+        $item = $this->listaItens[$itemId]->getItem();
         
-        $this->validarLimite($itemModel, $quantidade);
+        $this->validarLimite($item, $quantidade);
 
-        $subtotal = $this->calcularSubtotal($itemModel, $quantidade);
-        $this->itens[$itemId] = new ItemCarrinho($this->id, $itemModel, $quantidade, $subtotal);
+        $subtotal = $this->calcularSubtotal($item, $quantidade);
+        $this->listaItens[$itemId] = new ItemCarrinho($this->id, $item, $quantidade, $subtotal);
         $this->recalcularTotal();
     }
     }
 
     public function removerItem(int $itemId): void
     {
-        if (isset($this->itens[$itemId])) {
-            unset($this->itens[$itemId]);
+        if (isset($this->listaItens[$itemId])) {
+            unset($this->listaItens[$itemId]);
             $this->recalcularTotal();
         }
     }
@@ -94,7 +96,7 @@ class Carrinho
     private function recalcularTotal(): void
     {
         $this->totalGeral = 0.0;
-        foreach ($this->itens as $item) {
+        foreach ($this->listaItens as $item) {
             $this->totalGeral += $item->getSubtotal();
         }
     }
