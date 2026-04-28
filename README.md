@@ -15,12 +15,12 @@ Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas.
 **Pré-requisitos:**
 * MySQL ou MariaDB instalado e em execução.
 * PHP 8.x e Composer instalados.
-* Node.js e npm instalados.
+* Node.js e pnpm instalados.
 
 **Passos:**
 
 1. **Clonar o repositório do projeto:**
-   * Rode `git clone 
+   * Rode `git clone https://github.com/evandrovieiramafort/rascunhoIntegrador.git`
 
 2. **Instalar Dependências do Backend:**
    * Navegue até a pasta `/backend`.
@@ -28,7 +28,7 @@ Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas.
 
 3. **Instalar Dependências do Frontend:**
    * Navegue até a pasta `/frontend`.
-   * Rode `npm install`.
+   * Rode `pnpm install`.
 
 4. **Configurar o Banco de Dados:**
    * Há um arquivo na raiz do `/backend` chamado env-example.php, onde as variáveis do banco já estão organizadas em um array associativo. Altere o nome do arquivo para env.php e troque pelas suas credenciais os campos de usuário e senha.
@@ -42,7 +42,7 @@ Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas.
 
 6. **Iniciar o Frontend:**
    * Em outro terminal, em `/frontend`, rode:
-   * `npm run dev` (iniciará em `localhost:5173` por padrão).
+   * `pnpm run dev` (iniciará em `localhost:5173` por padrão).
 
 ---
 
@@ -53,8 +53,8 @@ Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas.
 * **Testes de Unidade e Integração (Kahlan):** Rode `composer run test`.
 
 ### Frontend (TypeScript & Vite)
-* **Testes Unitários (Vitest):** Rode `npm run test:unit`.
-* **Testes E2E (Playwright):** Rode `npm run test:e2e`.
-* **Build e Verificação de Tipos:** Rode `npm run build` (executa `tsc` seguido do build do Vite).
+* **Testes Unitários (Vitest):** Rode `pnpm run test:unit`.
+* **Testes E2E (Playwright):** Rode `pnpm run test:e2e`.
+* **Build e Verificação de Tipos:** Rode `pnpm run build` (executa `tsc` seguido do build do Vite).
 
 ---
