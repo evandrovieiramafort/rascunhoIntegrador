@@ -86,7 +86,7 @@ describe('CarrinhoPresenter', function () {
     describe('#removerItem', function () {
         it('deve remover um item específico mantendo os demais no carrinho', function () {
             $id1 = SpecHelper::ID_EXISTENTE;
-            $id2 = 2;
+            $id2 = SpecHelper::ID_SECUNDARIO;
 
             $this->servico->adicionarItem("sessao_remocao", $id1, 1);
             $this->servico->adicionarItem("sessao_remocao", $id2, 1);
