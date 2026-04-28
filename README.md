@@ -31,7 +31,7 @@ Projeto Fullstack E-commerce para a disciplina Projeto Integrador de Sistemas.
    * Rode `pnpm install`.
 
 4. **Configurar o Banco de Dados:**
-   * Há um arquivo na raiz do `/backend` chamado env-example.php, onde as variáveis do banco já estão organizadas em um array associativo. Altere o nome do arquivo para env.php e troque pelas suas credenciais os campos de usuário e senha.
+   * Há um arquivo na raiz do `/backend` chamado `env-example.php`, onde as variáveis do banco já estão organizadas em um array associativo. Altere o nome do arquivo para `env.php` e troque pelas suas credenciais os campos de usuário e senha.
    * Na raiz do projeto, rode os scripts:
    * Para criar a estrutura de produção: `composer run db:prd`.
    * Para preparar o banco de testes: `composer run db:test`.
