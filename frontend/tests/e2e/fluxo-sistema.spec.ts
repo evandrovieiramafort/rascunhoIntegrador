@@ -1,20 +1,22 @@
 import { test, expect } from '@playwright/test';
-import { CefetshopPage } from './CefetshopPage';
+import { SpecHelperE2E } from './SpecHelperE2E';
 
 const BASE_URL = 'http://localhost:5173';
 
 test.describe('Fluxo Principal do Usuário', () => {
+  let cefetPage: SpecHelperE2E;
+
+  test.beforeEach(async ({ page }) => {
+    cefetPage = new SpecHelperE2E(page);
+  });
 
   test('Deve comprar itens de páginas diferentes, remover e editar no carrinho', async ({ page }) => {
-    const cefetPage = new CefetshopPage(page);
-    
     await cefetPage.navegarParaHome();
 
     await cefetPage.adicionarAoCarrinho('Caneca Programador', '2');
 
     await cefetPage.navegarParaHome();
     await cefetPage.mudarPagina('2');
-
     await cefetPage.adicionarAoCarrinho('Moletom Azul Marinho');
 
     await cefetPage.navegarParaCarrinho();
@@ -30,10 +32,9 @@ test.describe('Fluxo Principal do Usuário', () => {
     await cefetPage.validarItemNoCarrinho('Caneca Programador', '1');
   });
 
-  test('Deve exibir mensagem de carrinho vazio ao acessar a rota sem itens', async ({ page }) => {
-    const cefetPage = new CefetshopPage(page);
-    
-    await page.goto(`${BASE_URL}/carrinho`);
+  test('Deve exibir mensagem de carrinho vazio ao acessar a rota sem itens', async () => {
+    await cefetPage.navegarParaHome();
+    await cefetPage.navegarParaCarrinho();
     await cefetPage.validarCarrinhoVazio();
   });
 

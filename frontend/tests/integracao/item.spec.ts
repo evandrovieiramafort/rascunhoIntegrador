@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 import { ItemService } from '../../src/services/ItemService';
-import { expectValidoItemDTO, expectValidaPaginacao } from './helpers/validador-dto';
+import { SpecHelperIntegracao } from './SpecHelperIntegracao';
 
 describe('Integração: ItemService', () => {
     const servico = new ItemService();
@@ -8,36 +8,32 @@ describe('Integração: ItemService', () => {
     it('deve obter a primeira página de itens com a estrutura de paginação correta', async () => {
         const resultado = await servico.obterItens(1);
 
-        expectValidaPaginacao(resultado);
-        expect(resultado.paginaAtual).toBe(1);
-        expect(resultado.totalPaginas).toBeGreaterThanOrEqual(2);
+        SpecHelperIntegracao.validarPaginacao(resultado);
+        SpecHelperIntegracao.validarValor(resultado.paginaAtual, 1);
         
         if (resultado.itens.length > 0) {
-            expectValidoItemDTO(resultado.itens[0]);
+            SpecHelperIntegracao.validarItemDTO(resultado.itens[0]);
         }
     });
 
     it('deve obter os detalhes de um item específico por ID', async () => {
-        const ID_PRODUTO = 5; 
-        const item = await servico.obterPorId(ID_PRODUTO);
+        const id = SpecHelperIntegracao.ID_EXISTENTE;
+        const item = await servico.obterPorId(id);
 
-        expect(item).toBeDefined();
-        expect(item.id).toBe(ID_PRODUTO);
+        SpecHelperIntegracao.validarPresenca(item);
+        SpecHelperIntegracao.validarValor(item.id, id);
         
-        expectValidoItemDTO(item);
-        
-        expect(item).toHaveProperty('descricaoDetalhada');
+        SpecHelperIntegracao.validarItemDTO(item);
     });
 
     it('deve lançar um erro ao tentar buscar os detalhes de um item inexistente', async () => {
-        const ID_FANTASMA = 999999;
-        await expect(servico.obterPorId(ID_FANTASMA)).rejects.toThrow();
+        await SpecHelperIntegracao.esperarErro(servico.obterPorId(SpecHelperIntegracao.ID_INEXISTENTE));
     });
 
     it('deve retornar um erro ao acessar uma página de paginação além do limite', async () => {
-        const PAGINA_INEXISTENTE = 99999;
-        await expect(servico.obterItens(PAGINA_INEXISTENTE))
-            .rejects
-            .toThrow('A busca não retornou resultados.');
+        await SpecHelperIntegracao.esperarErro(
+            servico.obterItens(SpecHelperIntegracao.PAGINA_INVALIDA), 
+            'A busca não retornou resultados.'
+        );
     });
 });

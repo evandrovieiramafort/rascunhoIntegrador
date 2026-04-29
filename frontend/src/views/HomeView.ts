@@ -36,7 +36,7 @@ export class HomeView implements HomeViewInterface {
     const aoMudarPagina = (pag: number) => {
       const url = new URL(window.location.href);
       url.searchParams.set('pagina', pag.toString());
-      window.history.pushState({}, '', url);
+      navegarPara(url.pathname + url.search);
       this.iniciar(pag);
       window.scrollTo({ top: 0, behavior: 'smooth' }); 
     };

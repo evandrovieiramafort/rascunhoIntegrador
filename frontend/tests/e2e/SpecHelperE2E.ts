@@ -1,6 +1,6 @@
 import { type Page, expect } from '@playwright/test';
 
-export class CefetshopPage {
+export class SpecHelperE2E {
     constructor(private readonly page: Page) {}
 
     async navegarParaHome() {
