@@ -1,6 +1,6 @@
 import { describe, it, beforeAll } from 'vitest';
 import { CarrinhoService } from '../../src/services/CarrinhoService';
-import { SpecHelperIntegracao } from './SpecHelperIntegracao'; // Importando a classe unificada
+import { SpecHelperIntegracao } from './SpecHelperIntegracao';
 
 describe('Integração: CarrinhoService', () => {
     
